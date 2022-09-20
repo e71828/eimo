@@ -1,3 +1,3 @@
-[submodule "pyspacenavigator/src"]
-	path = pyspacenavigator/src
-	url = https://github.com/e71828/pyspacenavigator.git
+[submodule "pyspacenavigator/src/pyspacenavigator"]
+	path = pyspacenavigator/src/pyspacenavigator
+	url = https://github.com/johnhw/pyspacenavigator.git

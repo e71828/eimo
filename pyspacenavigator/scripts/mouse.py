@@ -2,10 +2,9 @@ from pyspacenavigator import spacenavigator
 import rospy
 from eimo_msgs.msg import control
 
-
-def send_cmd():
+def send_control_cmd():
     print("Devices found:\n\t%s" % "\n\t".join(spacenavigator.list_devices()))
-    dev = spacenavigator.open(callback=None, button_callback=spacenavigator.toggle_led)
+    dev = spacenavigator.open()
     if dev:
         print(dev.describe_connection())
         state = spacenavigator.read()
@@ -20,13 +19,14 @@ def send_cmd():
             )
             print("".join(["buttons=", str(state.buttons)]))
         pub = rospy.Publisher('control', control, queue_size=10)
-        rospy.init_node('forward control message', anonymous=True)
+        rospy.init_node('forward_control_command', anonymous=True)
         rate = rospy.Rate(10)  # 10hz
         threshold = 0.8
         while not rospy.is_shutdown():
-            control_cmd = control(state.x > threshold, state.x < -threshold, 255, state.z > threshold,
+            state = spacenavigator.read()
+            control_cmd = control(state.y > threshold, state.y < -threshold, 255, state.z > threshold,
                                   state.z < -threshold,
-                                  state.yaw > 0.8, state.yaw < -0.8, state.buttons[0], state.buttons[1])
+                                  state.yaw < -0.8, state.yaw > 0.8, state.buttons[0], state.buttons[1])
             rospy.loginfo(control_cmd)
             pub.publish(control_cmd)
             rate.sleep()
@@ -34,6 +34,6 @@ def send_cmd():
 
 if __name__ == '__main__':
     try:
-        send_cmd()
+        send_control_cmd()
     except rospy.ROSInterruptException:
         pass
