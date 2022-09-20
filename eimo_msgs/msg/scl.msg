@@ -1,0 +1,2 @@
+string String_request
+string String_receive
