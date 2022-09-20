@@ -5,3 +5,5 @@ bool up
 bool down
 bool turn_left
 bool turn_right
+uint8 light1
+uint8 light2
