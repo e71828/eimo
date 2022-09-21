@@ -53,7 +53,6 @@ add_message_files(
     angle.msg
     depth.msg
     control.msg
-    control.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -165,6 +164,7 @@ include_directories(
  catkin_install_python(PROGRAMS
          ../pyspacenavigator/scripts/mouse.py
          ../pyspacenavigator/scripts/mouse_test.py
+         ../pyspacenavigator/scripts/mouse_trigger.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
