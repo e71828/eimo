@@ -2,6 +2,7 @@ from pyspacenavigator import spacenavigator
 import rospy
 from eimo_msgs.msg import control
 
+
 def send_control_cmd():
     print("Devices found:\n\t%s" % "\n\t".join(spacenavigator.list_devices()))
     dev = spacenavigator.open()
@@ -20,7 +21,8 @@ def send_control_cmd():
             print("".join(["buttons=", str(state.buttons)]))
         pub = rospy.Publisher('control', control, queue_size=10)
         rospy.init_node('forward_control_command', anonymous=True)
-        rate = rospy.Rate(10)  # 10hz
+        frequency = rospy.get_param('~frequency', default=10)
+        rate = rospy.Rate(frequency)  # 10hz
         threshold = 0.8
         while not rospy.is_shutdown():
             state = spacenavigator.read()
