@@ -165,6 +165,7 @@ include_directories(
          ../pyspacenavigator/scripts/mouse.py
          ../pyspacenavigator/scripts/mouse_test.py
          ../pyspacenavigator/scripts/mouse_trigger.py
+         ../scl_passthrough/scripts/request_voltage.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

@@ -14,7 +14,7 @@ class SCLPassthroughNode:
 
     def __init__(self):
 
-        self.rx = rospy.Service('rx', scl, self.tx_transmit)
+        self.rx = rospy.Service('scl_passthrough', scl, self.tx_transmit)
         rospy.init_node('serial_passthrough', anonymous=True)
 
         serial_port = rospy.get_param('~serial_port', default='/dev/ttyAMA0')
@@ -38,7 +38,8 @@ class SCLPassthroughNode:
 
         # encoded_packet = BPLProtocol.encode_packet(device_id, packet_id, data)
         try:
-            self.serial_port.write(data.encode('ascii'))
+            packet = data.encode('ascii') + b'\r'
+            self.serial_port.write(packet)
         except serial.SerialException as e:
             rospy.logwarn("Unable to write to serial")
 
