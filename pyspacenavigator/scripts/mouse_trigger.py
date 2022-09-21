@@ -14,7 +14,7 @@ class MouseControl:
         self.dev = spacenavigator.open(callback=self.send_after_trigger)
         if self.dev:
             self.dev.set_led(0)
-            while 1:
+            while not rospy.is_shutdown():
                 sleep(1)
                 self.dev.set_led(1)
                 sleep(1)
