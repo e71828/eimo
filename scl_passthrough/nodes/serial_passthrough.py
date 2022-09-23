@@ -8,6 +8,7 @@ Used to connect to an arm, and forward and ros messages received and
 import rospy
 from eimo_msgs.srv import scl, sclResponse
 import serial
+from time import sleep
 
 
 class SCLPassthroughNode:
@@ -43,12 +44,15 @@ class SCLPassthroughNode:
         except serial.SerialException as e:
             rospy.logwarn("Unable to write to serial")
 
+        sleep(0.1)
+
         try:
-            data = self.serial_port.read()
+            data = self.serial_port.readline()
         except serial.SerialException:
             rospy.logdebug("Error reading from serial")
 
         if data:
+            rospy.logdebug("Receiving {}".format(data))
             return sclResponse(data.decode('utf8'))
         else:
             return sclResponse('')
