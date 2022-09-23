@@ -1,1 +1,1 @@
-uint16 mbar
+uint16 depth_mm
