@@ -1,10 +1,10 @@
-uint8 yaw
-uint8 roll
-uint8 pitch
-uint8 yaw_v
-uint8 roll_v
-uint8 pitch_v
-uint8 yaw_a
-uint8 roll_a
-uint8 pitch_a
+int16 yaw
+int16 roll
+int16 pitch
+float32 yaw_v
+float32 roll_v
+float32 pitch_v
+float32 yaw_a
+float32 roll_a
+float32 pitch_a
 
