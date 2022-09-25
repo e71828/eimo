@@ -8,7 +8,7 @@ class MouseControl:
 
     def __init__(self):
         self.mouse_publisher = rospy.Publisher('control', control, queue_size=10)
-        rospy.init_node('forward_control_command_after_trigger', anonymous=True)
+        rospy.init_node('publish_control_command_after_trigger', anonymous=True)
 
         print("Devices found:\n\t%s" % "\n\t".join(spacenavigator.list_devices()))
         self.dev = spacenavigator.open(callback=self.send_after_trigger)

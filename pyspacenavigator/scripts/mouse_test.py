@@ -2,7 +2,7 @@ import rospy
 from time import sleep
 from pyspacenavigator import spacenavigator
 
-if __name__=='__main__':
+if __name__ == '__main__':
 
     success = spacenavigator.open(callback=spacenavigator.print_state, button_callback=spacenavigator.toggle_led)
     # success = spacenavigator.open()

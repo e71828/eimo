@@ -20,7 +20,7 @@ def send_control_cmd():
             )
             print("".join(["buttons=", str(state.buttons)]))
         pub = rospy.Publisher('control', control, queue_size=10)
-        rospy.init_node('forward_control_command', anonymous=True)
+        rospy.init_node('publish_control_command', anonymous=True)
         frequency = rospy.get_param('~frequency', default=10)
         rate = rospy.Rate(frequency)  # 10hz
         threshold = 0.8

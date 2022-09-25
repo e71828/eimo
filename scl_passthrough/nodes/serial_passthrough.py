@@ -16,7 +16,7 @@ class SCLPassthroughNode:
     def __init__(self):
 
         self.rx = rospy.Service('scl_passthrough', scl, self.tx_transmit)
-        rospy.init_node('serial_passthrough', anonymous=True)
+        rospy.init_node('serial_passthrough', anonymous=True, log_level=rospy.DEBUG)
 
         serial_port = rospy.get_param('~serial_port', default='/dev/ttyAMA0')
         baudrate = rospy.get_param('~baudrate', default=9600)
@@ -37,7 +37,7 @@ class SCLPassthroughNode:
         data = req.Request
         rospy.logdebug("Transmitting {}".format(data))
 
-        # encoded_packet = BPLProtocol.encode_packet(device_id, packet_id, data)
+        # encoded_packet = WITProtocol.encode_packet(device_id, packet_id, data)
         try:
             packet = data.encode('ascii') + b'\r'
             self.serial_port.write(packet)
