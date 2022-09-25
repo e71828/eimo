@@ -7,7 +7,7 @@ from eimo_msgs.msg import angle
 
 class I2cPropel:
     def __init__(self):
-        rospy.init_node('subscribe_control', anonymous=True)
+        rospy.init_node('propelling_control', anonymous=True)
         self.control_subscriber = rospy.Subscriber('control', control, self.controlling)
 
         self.pi = pigpio.pi()
