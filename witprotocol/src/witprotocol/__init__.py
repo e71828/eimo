@@ -101,6 +101,7 @@ class WITProtocol:
             gyro_y -= 2 * k_gyro
         if gyro_z >= k_gyro:
             gyro_z -= 2 * k_gyro
+        gyro_y = gyro_y/2 if packet_id == PacketID.POSITION else gyro_y
         return gyro_x, gyro_y, gyro_z
 
 
