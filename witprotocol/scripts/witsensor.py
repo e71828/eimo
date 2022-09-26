@@ -4,15 +4,6 @@ import serial
 import rospy
 from eimo_msgs.msg import angle
 
-
-class WitSensor:
-    def __init__(self):
-        pass
-
-    def pub_angle(self):
-        pass
-
-
 if __name__ == '__main__':
     with serial.Serial('/dev/ttyAMA1', 115200, timeout=1) as ser:
 

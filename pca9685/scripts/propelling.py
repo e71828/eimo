@@ -8,7 +8,8 @@ from eimo_msgs.msg import angle
 class I2cPropel:
     def __init__(self):
         rospy.init_node('propelling_control', anonymous=True)
-        self.control_subscriber = rospy.Subscriber('control', control, self.controlling)
+        rospy.Subscriber('control', control, self.controlling, 1)
+        rospy.Subscriber('angle', angle, self.controlling, 2)
 
         self.pi = pigpio.pi()
         if not self.pi.connected:
@@ -30,7 +31,7 @@ class I2cPropel:
         self.pwm.cancel()
         self.pi.stop()
 
-    def controlling(self, cmd_data):
+    def controlling(self, cmd_data, args):
         rospy.logdebug(rospy.get_caller_id() + "I heard cmd: go forward %s", cmd_data.forward)
 
         if cmd_data.light1:
@@ -58,7 +59,7 @@ class I2cPropel:
             pass
 
     def keep_yaw(self, step_value, angle, angle_v, angle_a):
-        pass
+        pass  # TODO
 
 
 if __name__ == "__main__":
