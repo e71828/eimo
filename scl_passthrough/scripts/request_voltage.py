@@ -15,6 +15,9 @@ if __name__ == '__main__':
         vol_str = voltage_QA.Answer
         if len(vol_str) > 2 and 'IU=' in vol_str:
             index = vol_str.index('IU=')
-            rospy.loginfo('voltage is %.1f V' % (int(vol_str[index+3:index+7], 16) / 10))
+            voltage = int(vol_str[index + 3:index + 7], 16) / 10
+            rospy.loginfo('voltage is %.1f V' % voltage)
+            if voltage <= 22.2:
+                rospy.logwarning('voltage is low: %.1f V' % voltage)
     except rospy.ServiceException as e:
         print("Service call failed: %s" % e)
