@@ -23,7 +23,7 @@ if __name__ == '__main__':
                         due_result = WITProtocol.get_gyro(*packet)
                         data_value.append(due_result)
                         if packet[0] == PacketID.POSITION:
-                            roll, pitch, yaw = tuple(map(int, due_result))
+                            roll, pitch, yaw = due_result
                             rospy.loginfo('angle position: {}'.format(due_result))
                         elif packet[0] == PacketID.VELOCITY:
                             roll_v, pitch_v, yaw_v = due_result

@@ -18,6 +18,6 @@ if __name__ == '__main__':
             voltage = int(vol_str[index + 3:index + 7], 16) / 10
             rospy.loginfo('voltage is %.1f V' % voltage)
             if voltage <= 22.2:
-                rospy.logwarning('voltage is low: %.1f V' % voltage)
+                rospy.logwarn('voltage is low: %.1f V' % voltage)
     except rospy.ServiceException as e:
         print("Service call failed: %s" % e)

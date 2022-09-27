@@ -44,7 +44,7 @@ class SCLPassthroughNode:
         except serial.SerialException as e:
             rospy.logwarn("Unable to write to serial")
 
-        sleep(0.1)
+        sleep(0.03)
 
         try:
             data = self.serial_port.readline()
@@ -53,7 +53,7 @@ class SCLPassthroughNode:
 
         if data:
             rospy.logdebug("Receiving {}".format(data))
-            return sclResponse(data.decode('utf8'))
+            return sclResponse(data.decode('utf8', errors='ignore'))
         else:
             return sclResponse('')
 

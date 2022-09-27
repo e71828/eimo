@@ -156,6 +156,7 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 catkin_install_python(PROGRAMS
     nodes/serial_passthrough.py
+    scripts/diving.py
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
