@@ -25,7 +25,13 @@ def send_control_cmd():
         rate = rospy.Rate(frequency)  # 10hz
         threshold = 0.8
         while not rospy.is_shutdown():
-            state = pyspacemouse.read()
+            readings = []
+            for _ in range(10):
+                state = pyspacemouse.read()
+                readings.append(state.y)
+
+            # Compute average reading
+            state = sum(readings) / 10
             control_cmd = control(state.y > threshold, state.y < -threshold, 255, state.z > threshold,
                                   state.z < -threshold,
                                   state.yaw < -0.8, state.yaw > 0.8, state.buttons[0], state.buttons[1])
