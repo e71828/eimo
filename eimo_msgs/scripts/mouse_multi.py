@@ -30,11 +30,43 @@ def send_control_cmd():
                 state = pyspacemouse.read()
                 readings.append(state)
 
-            # Compute average reading
-            state = sum(readings) / 10
-            control_cmd = control(state.y > threshold, state.y < -threshold, 255, state.z > threshold,
-                                  state.z < -threshold,
-                                  state.yaw < -0.8, state.yaw > 0.8, state.buttons[0], state.buttons[1])
+            # 初始化求和变量
+            sum_t = 0
+            sum_x = 0
+            sum_y = 0
+            sum_z = 0
+            sum_roll = 0
+            sum_pitch = 0
+            sum_yaw = 0
+            sum_buttons_0 = 0
+            sum_buttons_1 = 0
+
+            # 对每个数据点进行求和
+            for nav in readings:
+                # sum_t += nav.t
+                sum_x += nav.x
+                # sum_y += nav.y
+                sum_z += nav.z
+                # sum_roll += nav.roll
+                # sum_pitch += nav.pitch
+                sum_yaw += nav.yaw
+                sum_buttons_0 += nav.buttons[0]
+                sum_buttons_1 += nav.buttons[1]
+
+            # 计算平均值
+            # avg_t = sum_t / len(readings)
+            avg_x = sum_x / len(readings)
+            # avg_y = sum_y / len(readings)
+            avg_z = sum_z / len(readings)
+            # avg_roll = sum_roll / len(readings)
+            # avg_pitch = sum_pitch / len(readings)
+            avg_yaw = sum_yaw / len(readings)
+            avg_buttons_0 = sum_buttons_0 / len(readings)
+            avg_buttons_1 = sum_buttons_1 / len(readings)
+
+            control_cmd = control(avg_x > threshold, avg_x < -threshold, 255, avg_z > threshold,
+                                  avg_z < -threshold,
+                                  avg_yaw < -0.8, avg_yaw > 0.8, avg_buttons_0 > 0.5, avg_buttons_1 > 0.5)
             rospy.loginfo(control_cmd)
             pub.publish(control_cmd)
             rate.sleep()
