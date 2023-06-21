@@ -28,7 +28,7 @@ def send_control_cmd():
             readings = []
             for _ in range(10):
                 state = pyspacemouse.read()
-                readings.append(state.y)
+                readings.append(state)
 
             # Compute average reading
             state = sum(readings) / 10
