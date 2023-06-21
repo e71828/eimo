@@ -6,7 +6,6 @@
 
 import time
 
-import PCA9685
 import pigpio
 
 
