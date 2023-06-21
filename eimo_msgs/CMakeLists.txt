@@ -165,9 +165,6 @@ include_directories(
         scripts/depth_ms5837.py
         scripts/mouse_multi.py
          ../witprotocol/scripts/witsensor.py
-         ../pyspacenavigator/scripts/mouse.py
-         ../pyspacenavigator/scripts/mouse_test.py
-         ../pyspacenavigator/scripts/mouse_trigger.py
          ../scl_passthrough/scripts/request_voltage.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
