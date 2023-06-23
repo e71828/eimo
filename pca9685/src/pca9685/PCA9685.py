@@ -156,25 +156,44 @@ if __name__ == "__main__":
     if not pi.connected:
         exit(0)
 
-    pwm = PCA9685.PWM(pi, bus=3)  # defaults to bus 1, address 0x40
+    pwm = PWM(pi, bus=3)  # defaults to bus 1, address 0x40
 
     pwm.set_frequency(50)  # suitable for servos
 
-    pwm.set_duty_cycle(-1, 7.5)  # -1 for all channels
-    time.sleep(4)
+    pwm.set_duty_cycle(4, 7.5)  # -1 for all channels
+    pwm.set_duty_cycle(5, 7.5)  # -1 for all channels
+    pwm.set_duty_cycle(6, 6.25)  # -1 for all channels
+    pwm.set_duty_cycle(7, 6.25)  # -1 for all channels
+    time.sleep(3)
 
-    # for pw in range(1500, 950, -50):
-    #     pwm.set_pulse_width(-1, pw) # -1 for all channels
-    #     time.sleep(1)
-    #
-    # for pw in range(1000, 2050, 50):
-    #     pwm.set_pulse_width(-1, pw) # -1 for all channels
-    #     time.sleep(1)
-    #
-    # for pw in range(2000, 1450, -50):  # 前进
-    #     pwm.set_pulse_width(-1, pw) # -1 for all channels
+    # for pw in range(1500, 1050, -50):  # 灯
+    #     pwm.set_pulse_width(6, pw) # -1 for all channels
+    #     pwm.set_pulse_width(7, pw) # -1 for all channels
     #     time.sleep(1)
 
+
+    # pwm.set_pulse_width(5, 1526)
+    # pwm.set_pulse_width(4, 1521)
+    # time.sleep(3)
+    # pwm.set_pulse_width(5, 1500)
+    # pwm.set_pulse_width(4, 1500)
+    # time.sleep(2)
+    # pwm.set_pulse_width(5, 1461)
+    # pwm.set_pulse_width(4, 1454)
+    # time.sleep(5)
+    # 5号 1526 正转， 1465 反转， 左侧
+    # 4号 1521 正转， 1461 反转， 右侧
+
+    pwm.set_pulse_width(5, 1526)
+    pwm.set_pulse_width(4, 1526)
+    time.sleep(3)
+    pwm.set_pulse_width(5, 1500)
+    pwm.set_pulse_width(4, 1500)
+    time.sleep(2)
+    pwm.set_pulse_width(5, 1454)
+    pwm.set_pulse_width(4, 1454)
+    time.sleep(5)
+    # 公共值 1526 正转， 1454 反转， 左侧
     pwm.cancel()
 
     pi.stop()

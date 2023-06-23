@@ -1,3 +1,5 @@
+import time
+
 import pyspacemouse
 import rospy
 from eimo_msgs.msg import control
@@ -19,16 +21,17 @@ def send_control_cmd():
                 )
             )
             print("".join(["buttons=", str(state.buttons)]))
-        pub = rospy.Publisher('control', control, queue_size=10)
+        pub = rospy.Publisher('control', control, queue_size=1)
         rospy.init_node('publish_control_command', anonymous=True)
-        frequency = rospy.get_param('~frequency', default=10)
+        frequency = rospy.get_param('~frequency', default=4)
         rate = rospy.Rate(frequency)  # 10hz
         threshold = 0.8
         while not rospy.is_shutdown():
             readings = []
-            for _ in range(10):
+            for _ in range(23):
                 state = pyspacemouse.read()
                 readings.append(state)
+                time.sleep(0.01)
 
             # 初始化求和变量
             sum_t = 0
@@ -44,8 +47,8 @@ def send_control_cmd():
             # 对每个数据点进行求和
             for nav in readings:
                 # sum_t += nav.t
-                sum_x += nav.x
-                # sum_y += nav.y
+                # sum_x += nav.x
+                sum_y += nav.y
                 sum_z += nav.z
                 # sum_roll += nav.roll
                 # sum_pitch += nav.pitch
@@ -55,8 +58,8 @@ def send_control_cmd():
 
             # 计算平均值
             # avg_t = sum_t / len(readings)
-            avg_x = sum_x / len(readings)
-            # avg_y = sum_y / len(readings)
+            # avg_x = sum_x / len(readings)
+            avg_y = sum_y / len(readings)
             avg_z = sum_z / len(readings)
             # avg_roll = sum_roll / len(readings)
             # avg_pitch = sum_pitch / len(readings)
@@ -64,9 +67,9 @@ def send_control_cmd():
             avg_buttons_0 = sum_buttons_0 / len(readings)
             avg_buttons_1 = sum_buttons_1 / len(readings)
 
-            control_cmd = control(avg_x > threshold, avg_x < -threshold, 255, avg_z > threshold,
+            control_cmd = control(avg_y > threshold, avg_y < -threshold, 64, avg_z > threshold,
                                   avg_z < -threshold,
-                                  avg_yaw < -0.8, avg_yaw > 0.8, avg_buttons_0 > 0.5, avg_buttons_1 > 0.5)
+                                  avg_yaw < -0.8, avg_yaw > 0.8, avg_buttons_0 > 0.8, avg_buttons_1 > 0.8)
             rospy.loginfo(control_cmd)
             pub.publish(control_cmd)
             rate.sleep()
