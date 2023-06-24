@@ -23,12 +23,12 @@ def send_control_cmd():
             print("".join(["buttons=", str(state.buttons)]))
         pub = rospy.Publisher('control', control, queue_size=1)
         rospy.init_node('publish_control_command', anonymous=True)
-        frequency = rospy.get_param('~frequency', default=4)
+        frequency = rospy.get_param('~frequency', default=8)
         rate = rospy.Rate(frequency)  # 10hz
         threshold = 0.8
         while not rospy.is_shutdown():
             readings = []
-            for _ in range(23):
+            for _ in range(7):
                 state = pyspacemouse.read()
                 readings.append(state)
                 time.sleep(0.01)
@@ -69,7 +69,7 @@ def send_control_cmd():
 
             control_cmd = control(avg_y > threshold, avg_y < -threshold, 64, avg_z > threshold,
                                   avg_z < -threshold,
-                                  avg_yaw < -0.8, avg_yaw > 0.8, avg_buttons_0 > 0.8, avg_buttons_1 > 0.8)
+                                  avg_yaw < -threshold, avg_yaw > threshold, avg_buttons_0 > 0.8, avg_buttons_1 > 0.8)
             rospy.loginfo(control_cmd)
             pub.publish(control_cmd)
             rate.sleep()
