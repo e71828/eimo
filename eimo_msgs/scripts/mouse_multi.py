@@ -60,10 +60,14 @@ def send_control_cmd():
                 control_cmd = control(0, 0, gain, 0, 0, 0, 1, button_0, button_1)
             elif left and not right:
                 control_cmd = control(0, 0, gain, 0, 0, 1, 0, button_0, button_1)
-            elif up and not down:
-                control_cmd = control(0, 0, gain, 1, 0, 0, 0, button_0, button_1)
-            elif down and not up:
-                control_cmd = control(0, 0, gain, 0, 1, 0, 0, button_0, button_1)
+            elif up and not down and not button_0 and not button_1:
+                control_cmd = control(0, 0, gain, 1, 0, 0, 0, 0, 0)
+            elif down and not up and not button_0 and not button_1:
+                control_cmd = control(0, 0, gain, 0, 1, 0, 0, 0, 0)
+            elif up and not down and button_0 and  button_1:
+                control_cmd = control(0, 0, gain, 1, 0, 0, 0, 1, 1)
+            elif down and not up and button_0 and  button_1:
+                control_cmd = control(0, 0, gain, 0, 1, 0, 0, 1, 1)
             elif forward and not backward:
                 control_cmd = control(1, 0, gain, 0, 0, 0, 0, button_0, button_1)
             elif backward and not forward:
