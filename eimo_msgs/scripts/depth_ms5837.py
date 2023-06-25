@@ -23,7 +23,10 @@ class I2cMs5837:
         else:
             rospy.loginfo("Opened i2c port {}".format(i2c_port))
             self.sensor.read(ms5837.OSR_8192)
-            self.init_depth = self.sensor.depth()
+            depth_value = 0
+            for i in  range(6):
+                depth_value += self.sensor.depth()
+            self.init_depth = depth_value / 6
             rospy.loginfo('init m: {}'.format(self.init_depth))
 
         self.pub_depth()

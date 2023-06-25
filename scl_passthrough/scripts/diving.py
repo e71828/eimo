@@ -12,11 +12,11 @@ from simple_pid import PID
 class DepthControl:
     def __init__(self):
         self.current_depth = None
-        self.setpoint_depth = rospy.get_param('~init_setpoint_depth', default=900)
+        self.setpoint_depth = rospy.get_param('~init_setpoint_depth', default=400)
         self.controlling_flag = False
         self.controlling_flag_old = False
         self.base_output = 0
-        self.pid = PID(10, 0, 10, setpoint=self.setpoint_depth)
+        self.pid = PID(300, 30, 500, setpoint=self.setpoint_depth)
         self.pid.sample_time = 1  # Update every 1 seconds
         self.pid.output_limits = (-180000, 180000)
 
@@ -87,22 +87,24 @@ class DepthControl:
                 self.config('SKD') if self.controlling_flag_old != self.controlling_flag else None
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = True
-                self.config('DI100000')
-                self.config('FS1H')
+                self.config('DI-50000')
+                self.config('FS2H')
+                self.setpoint_depth -= 100
             elif data.light1 and data.light2 and data.down:
                 self.config('SKD') if self.controlling_flag_old != self.controlling_flag else None
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = True
-                self.config('DI-100000')
-                self.config('FS2H')
+                self.config('DI50000')
+                self.config('FS1H')
+                self.setpoint_depth += 100
             elif data.up and not data.down:
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = False
-                self.setpoint_depth += 20
+                self.setpoint_depth -= 20
             elif data.down and not data.up:
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = False
-                self.setpoint_depth -= 20
+                self.setpoint_depth += 20
             else:
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = False
