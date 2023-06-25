@@ -12,11 +12,12 @@ from simple_pid import PID
 class DepthControl:
     def __init__(self):
         self.current_depth = None
-        self.setpoint_depth = rospy.get_param('~init_setpoint_depth', default=400)
+        self.setpoint_depth = rospy.get_param('~init_setpoint_depth', default=500)
         self.controlling_flag = False
         self.controlling_flag_old = False
+        self.weight_compensate = rospy.get_param('~weight_compensate', default=50000)
         self.base_output = 0
-        self.pid = PID(300, 30, 500, setpoint=self.setpoint_depth)
+        self.pid = PID(150, 0, 50, setpoint=self.setpoint_depth)
         self.pid.sample_time = 1  # Update every 1 seconds
         self.pid.output_limits = (-180000, 180000)
 
@@ -108,14 +109,16 @@ class DepthControl:
             else:
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = False
+            if self.setpoint_depth < 400:
+                self.setpoint_depth = 400
         elif args == 2:
             self.current_depth = data.depth_mm
             if not self.controlling_flag and not self.controlling_flag_old:
                 self.pid.setpoint = self.setpoint_depth
-                output = int(self.pid(self.current_depth))
+                output = int(self.pid(self.current_depth)) + self.weight_compensate
                 rospy.loginfo(f'setpoint_depth: {self.setpoint_depth}')
                 rospy.loginfo(f'current  depth: {data.depth_mm}')
-                rospy.loginfo(f'current output: {output}')
+                # rospy.loginfo(f'current output: {output}')
                 self.config('FP' + str(output))
         else:
             pass

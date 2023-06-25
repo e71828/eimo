@@ -25,12 +25,11 @@ class I2cPropel:
         self.current_yaw = .0
         self.current_yaw_v = None
         self.current_yaw_a = None
-        self.setpoint_yaw = .0
-        self.controlling_flag = False
+        self.setpoint_yaw = 0
         self.base_output = 0
-        self.pid = PID(0.6, 0.1, 0, setpoint=self.setpoint_yaw, error_map=pi_clip)
-        self.pid.sample_time = 1  # Update every 1 seconds
-        self.pid.output_limits = (-20, 20)
+        self.pid = PID(1, 0.05, 0.2, setpoint=self.setpoint_yaw, error_map=pi_clip)
+        self.pid.sample_time = 0.1  # Update every 1 seconds
+        self.pid.output_limits = (-100, 100)
 
         self.pi = pigpio.pi()
         if not self.pi.connected:
@@ -70,22 +69,13 @@ class I2cPropel:
                 self.light2_level = self.light2_level + 1 if self.light2_level < 8 else 0
                 self.pwm.set_pulse_width(7, self.light2_level*50 + 1100)
 
+            self.base_output = 0
             if data.forward:
-                self.controlling_flag = True
-                self.base_output = int(data.gain / 256 * 50)
-                self.pwm.set_pulse_width(4, 1526 + self.base_output)
-                self.pwm.set_pulse_width(5, 1521 + self.base_output)
-                rospy.loginfo('forward')
-            elif data.backward:
-                self.controlling_flag = True
-                self.base_output = int(data.gain / 256 * (-50))
-                self.pwm.set_pulse_width(4, 1454 + self.base_output)
-                self.pwm.set_pulse_width(5, 1461 + self.base_output)
+                self.base_output = -data.gain
                 rospy.loginfo('withdraw')
-            elif self.controlling_flag:
-                self.controlling_flag = False
-                self.pwm.set_pulse_width(4, 1500)
-                self.pwm.set_pulse_width(5, 1500)
+            elif data.backward:
+                self.base_output = data.gain
+                rospy.loginfo('forward')
             elif data.turn_left:
                 self.setpoint_yaw -= 5
                 self.setpoint_yaw = pi_clip(self.setpoint_yaw)
@@ -94,25 +84,29 @@ class I2cPropel:
                 self.setpoint_yaw += 5
                 self.setpoint_yaw = pi_clip(self.setpoint_yaw)
                 rospy.loginfo('turn right')
-            else:
-                pass
         elif args == 2:
             self.current_yaw = data.yaw
-            if not self.controlling_flag:
-                self.pid.setpoint = self.setpoint_yaw
-                output = self.pid(self.current_yaw)
-                rospy.loginfo(f'setpoint_yaw: {self.setpoint_yaw}')
-                rospy.loginfo(f'current  yaw: {self.current_yaw}')
-                rospy.loginfo(f'output: {output}')
-                if output > 1 : # turn left
-                    self.pwm.set_pulse_width(4, 1521  + output)
-                    self.pwm.set_pulse_width(5, 1461  - output)
-                elif output < -1: # turn right
-                    self.pwm.set_pulse_width(4, 1454  + output)
-                    self.pwm.set_pulse_width(5, 1526  - output)
-                else:
-                    self.pwm.set_pulse_width(4, 1500)
-                    self.pwm.set_pulse_width(5, 1500)
+            self.pid.setpoint = self.setpoint_yaw
+            output = self.pid(self.current_yaw)
+            rospy.loginfo(f'setpoint_yaw: {self.setpoint_yaw}')
+            rospy.loginfo(f'current  yaw: {self.current_yaw}')
+            rospy.loginfo(f'output: {output}')
+            rospy.loginfo(f'base_output: {self.base_output}')
+            if self.base_output > 0:
+                self.pwm.set_pulse_width(4, 1524  - output + self.base_output)
+                self.pwm.set_pulse_width(5, 1527  + output + self.base_output)
+            elif self.base_output < 0:
+                self.pwm.set_pulse_width(4, 1453  - output + self.base_output)
+                self.pwm.set_pulse_width(5, 1453  + output + self.base_output)
+            elif output > 2:
+                self.pwm.set_pulse_width(4, 1453  - output)
+                self.pwm.set_pulse_width(5, 1527  + output)
+            elif output < -2:
+                self.pwm.set_pulse_width(4, 1524  - output)
+                self.pwm.set_pulse_width(5, 1453  + output)
+            else:
+                self.pwm.set_pulse_width(4, 1500)
+                self.pwm.set_pulse_width(5, 1500)
 
 if __name__ == "__main__":
     try:

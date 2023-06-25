@@ -172,27 +172,25 @@ if __name__ == "__main__":
     #     time.sleep(1)
 
 
-    pwm.set_pulse_width(5, 1525)
-    pwm.set_pulse_width(4, 1520)
+    pwm.set_pulse_width(5, 1527)
+    pwm.set_pulse_width(4, 1524)
     time.sleep(3)
-    pwm.set_pulse_width(5, 1500)
-    pwm.set_pulse_width(4, 1500)
+    # pwm.set_pulse_width(5, 1500)
+    # pwm.set_pulse_width(4, 1500)
     time.sleep(2)
-    pwm.set_pulse_width(5, 1460)
-    pwm.set_pulse_width(4, 1453)
+    pwm.set_pulse_width(5, 1453-30)
+    pwm.set_pulse_width(4, 1453-30)
     time.sleep(3)
+    # pwm.set_pulse_width(4, 1524)
+    # pwm.set_pulse_width(5, 1470)
+    # time.sleep(14)
+    # pwm.set_pulse_width(4, 1453-100)
+    # pwm.set_pulse_width(5, 1527+100)
+    # time.sleep(14)
 
-    pwm.set_pulse_width(5, 1526)
-    pwm.set_pulse_width(4, 1521)
-    time.sleep(3)
-    pwm.set_pulse_width(5, 1500)
-    pwm.set_pulse_width(4, 1500)
-    time.sleep(2)
-    pwm.set_pulse_width(5, 1461)
-    pwm.set_pulse_width(4, 1454)
-    time.sleep(5)
-    # 5号 1526 正转， 1465 反转， 左侧
-    # 4号 1521 正转， 1461 反转， 右侧
+
+    # 5号 1527 正转， 1453 反转， 左侧
+    # 4号 1524 正转， 1453 反转， 右侧
 
     pwm.cancel()
 
