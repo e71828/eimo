@@ -63,10 +63,10 @@ class I2cPropel:
 
     def controlling(self, data, args):
         if args == 1:
-            if data.light1:
+            if data.light1 and not data.up and not data.down:
                 self.light1_level = self.light1_level + 1 if self.light1_level < 8 else 0
                 self.pwm.set_pulse_width(6, self.light1_level*50 + 1100)
-            if data.light2:
+            if data.light2 and not data.up and not data.down:
                 self.light2_level = self.light2_level + 1 if self.light2_level < 8 else 0
                 self.pwm.set_pulse_width(7, self.light2_level*50 + 1100)
 
