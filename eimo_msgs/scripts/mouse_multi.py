@@ -23,53 +23,55 @@ def send_control_cmd():
             print("".join(["buttons=", str(state.buttons)]))
         pub = rospy.Publisher('control', control, queue_size=1)
         rospy.init_node('publish_control_command', anonymous=True)
-        frequency = rospy.get_param('~frequency', default=8)
-        rate = rospy.Rate(frequency)  # 10hz
-        threshold = 0.8
+        frequency = rospy.get_param('~frequency', default=1)
+        rate = rospy.Rate(frequency)  # 1hz
+        threshold = 0.9
+        gain = 64
         while not rospy.is_shutdown():
-            readings = []
-            for _ in range(7):
+            forward = False
+            backward = False
+            right = False
+            left = False
+            up = False
+            down = False
+            button_0 = False
+            button_1 = False
+            for _ in range(90):
                 state = pyspacemouse.read()
-                readings.append(state)
+                if state.y > threshold:
+                    forward = True
+                elif state.y < -threshold:
+                    backward = True
+                if state.yaw > threshold:
+                    right = True
+                elif state.yaw < -threshold:
+                    left = True
+                if state.z > threshold:
+                    up = True
+                elif state.z < -threshold:
+                    down = True
+                if state.buttons[0]:
+                    button_0 = True
+                if state.buttons[1]:
+                    button_1 = True
                 time.sleep(0.01)
 
-            # 初始化求和变量
-            sum_t = 0
-            sum_x = 0
-            sum_y = 0
-            sum_z = 0
-            sum_roll = 0
-            sum_pitch = 0
-            sum_yaw = 0
-            sum_buttons_0 = 0
-            sum_buttons_1 = 0
-
-            # 对每个数据点进行求和
-            for nav in readings:
-                # sum_t += nav.t
-                # sum_x += nav.x
-                sum_y += nav.y
-                sum_z += nav.z
-                # sum_roll += nav.roll
-                # sum_pitch += nav.pitch
-                sum_yaw += nav.yaw
-                sum_buttons_0 += nav.buttons[0]
-                sum_buttons_1 += nav.buttons[1]
-
-            # 计算平均值
-            # avg_t = sum_t / len(readings)
-            # avg_x = sum_x / len(readings)
-            avg_y = sum_y / len(readings)
-            avg_z = sum_z / len(readings)
-            # avg_roll = sum_roll / len(readings)
-            # avg_pitch = sum_pitch / len(readings)
-            avg_yaw = sum_yaw / len(readings)
-            avg_buttons_0 = sum_buttons_0 / len(readings)
-            avg_buttons_1 = sum_buttons_1 / len(readings)
-
-            control_cmd = control(avg_y > threshold, avg_y < -threshold, 64, avg_z > threshold,
-                                  avg_z < -threshold,
-                                  avg_yaw < -threshold, avg_yaw > threshold, avg_buttons_0 > 0.8, avg_buttons_1 > 0.8)
+            if right and not left:
+                control_cmd = control(0, 0, gain, 0, 0, 0, 1, button_0, button_1)
+            elif left and not right:
+                control_cmd = control(0, 0, gain, 0, 0, 1, 0, button_0, button_1)
+            elif up and not down:
+                control_cmd = control(0, 0, gain, 1, 0, 0, 0, button_0, button_1)
+            elif down and not up:
+                control_cmd = control(0, 0, gain, 0, 1, 0, 0, button_0, button_1)
+            elif forward and not backward:
+                control_cmd = control(1, 0, gain, 0, 0, 0, 0, button_0, button_1)
+            elif backward and not forward:
+                control_cmd = control(0, 1, gain, 0, 0, 0, 0, button_0, button_1)
+            elif button_0 or button_1:
+                control_cmd = control(0, 0, gain, 0, 0, 0, 0, button_0, button_1)
+            else:
+                control_cmd = control(0, 0, gain, 0, 0, 0, 0, 0, 0)
             rospy.loginfo(control_cmd)
             pub.publish(control_cmd)
             rate.sleep()
