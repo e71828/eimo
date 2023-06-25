@@ -28,8 +28,8 @@ class I2cPropel:
         self.setpoint_yaw = .0
         self.controlling_flag = False
         self.base_output = 0
-        self.pid = PID(0.5, 0.05, 0.05, setpoint=self.setpoint_yaw, error_map=pi_clip)
-        self.pid.sample_time = 0.1  # Update every 0.1 seconds
+        self.pid = PID(0.6, 0.1, 0, setpoint=self.setpoint_yaw, error_map=pi_clip)
+        self.pid.sample_time = 1  # Update every 1 seconds
         self.pid.output_limits = (-20, 20)
 
         self.pi = pigpio.pi()
@@ -70,53 +70,46 @@ class I2cPropel:
                 self.light2_level = self.light2_level + 1 if self.light2_level < 8 else 0
                 self.pwm.set_pulse_width(7, self.light2_level*50 + 1100)
 
-            if not data.turn_left and not data.turn_right:
-                if data.forward:
-                    self.controlling_flag = True
-                    self.base_output = data.gain / 256 * 4
-                    self.pwm.set_pulse_width(4, 1527 + self.base_output)
-                    self.pwm.set_pulse_width(5, 1520 + self.base_output)
-                    rospy.loginfo('forward')
-                elif data.backward:
-                    self.controlling_flag = True
-                    self.base_output = data.gain / 256 * (-10)
-                    self.pwm.set_pulse_width(4, 1454 + self.base_output)
-                    self.pwm.set_pulse_width(5, 1454 + self.base_output)
-                    rospy.loginfo('withdraw')
-                elif self.controlling_flag:
-                    self.pwm.set_pulse_width(4, 1500)
-                    self.pwm.set_pulse_width(5, 1500)
-                    self.controlling_flag = False
-                else:
-                    pass
-            elif data.turn_left:
+            if data.forward:
                 self.controlling_flag = True
-                self.pwm.set_pulse_width(4, 1527)
-                self.pwm.set_pulse_width(5, 1454)
+                self.base_output = int(data.gain / 256 * 50)
+                self.pwm.set_pulse_width(4, 1526 + self.base_output)
+                self.pwm.set_pulse_width(5, 1521 + self.base_output)
+                rospy.loginfo('forward')
+            elif data.backward:
+                self.controlling_flag = True
+                self.base_output = int(data.gain / 256 * (-50))
+                self.pwm.set_pulse_width(4, 1454 + self.base_output)
+                self.pwm.set_pulse_width(5, 1461 + self.base_output)
+                rospy.loginfo('withdraw')
+            elif self.controlling_flag:
+                self.controlling_flag = False
+                self.pwm.set_pulse_width(4, 1500)
+                self.pwm.set_pulse_width(5, 1500)
+            elif data.turn_left:
+                self.setpoint_yaw -= 5
+                self.setpoint_yaw = pi_clip(self.setpoint_yaw)
                 rospy.loginfo('turn left')
             elif data.turn_right:
-                self.controlling_flag = True
-                self.pwm.set_pulse_width(4, 1527)
-                self.pwm.set_pulse_width(5, 1454)
+                self.setpoint_yaw += 5
+                self.setpoint_yaw = pi_clip(self.setpoint_yaw)
                 rospy.loginfo('turn right')
             else:
                 pass
         elif args == 2:
             self.current_yaw = data.yaw
-            # self.yaw.insert(0, self.current_yaw)
-            # self.yaw.pop() if len(self.yaw) > 10 else None
-
-            # self.current_yaw_v = data.yaw_v
-            # self.current_yaw_a = data.yaw_a
             if not self.controlling_flag:
                 self.pid.setpoint = self.setpoint_yaw
                 output = self.pid(self.current_yaw)
-                # rospy.loginfo(f'current output: {output}')
-                # self.pwm.set_pulse_width(4, 1527  + output)  # TODO
-                # self.pwm.set_pulse_width(5, 1454  - output)
-            else:
-                self.setpoint_yaw = data.yaw
-
+                rospy.loginfo(f'setpoint_yaw: {self.setpoint_yaw}')
+                rospy.loginfo(f'current  yaw: {self.current_yaw}')
+                rospy.loginfo(f'output: {output}')
+                if output > 0 : # turn left
+                    self.pwm.set_pulse_width(4, 1521  + output)
+                    self.pwm.set_pulse_width(5, 1461  - output)
+                else: # turn right
+                    self.pwm.set_pulse_width(4, 1454  + output)
+                    self.pwm.set_pulse_width(5, 1526  - output)
 
 if __name__ == "__main__":
     try:

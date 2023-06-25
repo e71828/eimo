@@ -10,7 +10,7 @@ if __name__ == '__main__':
         pub = rospy.Publisher('angle', angle, queue_size=1)
         rospy.init_node('publish_angle', anonymous=True)
         frequency = rospy.get_param('~frequency', default=1)
-        rate = rospy.Rate(frequency)  # 10hz
+        rate = rospy.Rate(frequency)  # Hz
         while not rospy.is_shutdown():
             ser.reset_input_buffer()
             read_data = ser.read(44)
