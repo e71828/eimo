@@ -104,12 +104,15 @@ class I2cPropel:
                 rospy.loginfo(f'setpoint_yaw: {self.setpoint_yaw}')
                 rospy.loginfo(f'current  yaw: {self.current_yaw}')
                 rospy.loginfo(f'output: {output}')
-                if output > 0 : # turn left
+                if output > 1 : # turn left
                     self.pwm.set_pulse_width(4, 1521  + output)
                     self.pwm.set_pulse_width(5, 1461  - output)
-                else: # turn right
+                elif output < -1: # turn right
                     self.pwm.set_pulse_width(4, 1454  + output)
                     self.pwm.set_pulse_width(5, 1526  - output)
+                else:
+                    self.pwm.set_pulse_width(4, 1500)
+                    self.pwm.set_pulse_width(5, 1500)
 
 if __name__ == "__main__":
     try:
