@@ -11,7 +11,7 @@ class I2cMs5837:
         rospy.init_node('publish_depth', anonymous=True)
 
         i2c_port = rospy.get_param('~i2c_port', default='/dev/i2c-1')
-        fluid_density = rospy.get_param('~density', default=1000)
+        fluid_density = rospy.get_param('~density', default=897)
         self.frequency = rospy.get_param('~frequency', default=1)
         self.sensor = ms5837.MS5837_02BA(int(i2c_port[-1]))  # Default I2C bus is 1
         self.sensor.setFluidDensity(fluid_density)  # Set fluid density to 1000 kg/m^3
@@ -34,11 +34,11 @@ class I2cMs5837:
         while not rospy.is_shutdown():
             depth_value = 0
             # read depth 20 times and get the average value
-            for i in range(50):
+            for i in range(80):
                 self.sensor.read(ms5837.OSR_512)
                 depth_value += self.sensor.depth() - self.init_depth
                 time.sleep(0.01)
-            depth_value /= 20
+            depth_value /= 50
             depth_value_mm = int(depth_value * 1000 + 300)
             self.depth_publisher.publish(depth_value_mm)
             rospy.loginfo('mm: {}'.format(depth_value_mm))
