@@ -12,12 +12,12 @@ from simple_pid import PID
 class DepthControl:
     def __init__(self):
         self.current_depth = None
-        self.setpoint_depth = 300
+        self.setpoint_depth = rospy.get_param('~init_setpoint_depth', default=900)
         self.controlling_flag = False
         self.controlling_flag_old = False
         self.base_output = 0
-        self.pid = PID(1000, 50, 10, setpoint=self.setpoint_depth)
-        self.pid.sample_time = 0.1  # Update every 0.1 seconds
+        self.pid = PID(10, 0, 10, setpoint=self.setpoint_depth)
+        self.pid.sample_time = 1  # Update every 1 seconds
         self.pid.output_limits = (-180000, 180000)
 
         rospy.init_node('depth_control', anonymous=True)
@@ -83,29 +83,38 @@ class DepthControl:
 
     def diving(self, data, args):
         if args == 1:
-            self.config('SKD') if self.controlling_flag_old != self.controlling_flag else None
-            self.controlling_flag_old = self.controlling_flag
-            if data.up and not data.down:
+            if data.light1 and data.light2 and data.up:
+                self.config('SKD') if self.controlling_flag_old != self.controlling_flag else None
+                self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = True
                 self.config('DI100000')
                 self.config('FS1H')
-            elif data.down and not data.up:
+            elif data.light1 and data.light2 and data.down:
+                self.config('SKD') if self.controlling_flag_old != self.controlling_flag else None
+                self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = True
                 self.config('DI-100000')
                 self.config('FS2H')
-            elif not data.down and not data.up:
+            elif data.up and not data.down:
+                self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = False
+                self.setpoint_depth += 20
+            elif data.down and not data.up:
+                self.controlling_flag_old = self.controlling_flag
+                self.controlling_flag = False
+                self.setpoint_depth -= 20
             else:
+                self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = False
         elif args == 2:
             self.current_depth = data.depth_mm
-            if not self.controlling_flag:
+            if not self.controlling_flag and not self.controlling_flag_old:
                 self.pid.setpoint = self.setpoint_depth
                 output = int(self.pid(self.current_depth))
-                self.config('DI' + str(output))
-                self.config('FS1H') if output > 0 else self.config('FS2H')
-            else:
-                self.setpoint_depth = data.depth_mm
+                rospy.loginfo(f'setpoint_depth: {self.setpoint_depth}')
+                rospy.loginfo(f'current  depth: {data.depth_mm}')
+                rospy.loginfo(f'current output: {output}')
+                self.config('FP' + str(output))
         else:
             pass
 
