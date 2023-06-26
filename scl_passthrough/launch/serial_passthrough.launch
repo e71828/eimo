@@ -1,6 +1,6 @@
 <launch>
     <arg name="serial_port" default="/dev/ttyAMA0"/>
-    <node name="scl_passthrough" pkg="scl_passthrough" type="serial_passthrough.py" output="screen">
-        <param name="serial_port" value="$(arg serial_port)"/>
+    <node name="scl" pkg="scl_passthrough" type="serial_passthrough.py">
+        <param name="~serial_port" value="$(arg serial_port)"/>
     </node>
 </launch>

@@ -5,12 +5,14 @@ import rospy
 from eimo_msgs.msg import angle
 
 if __name__ == '__main__':
-    with serial.Serial('/dev/ttyAMA1', 115200, timeout=1) as ser:
+    pub = rospy.Publisher('angle', angle, queue_size=1)
+    rospy.init_node('publish_angle', anonymous=True)
+    frequency = rospy.get_param('~frequency', default=10)
+    rate = rospy.Rate(frequency)  # Hz
 
-        pub = rospy.Publisher('angle', angle, queue_size=1)
-        rospy.init_node('publish_angle', anonymous=True)
-        frequency = rospy.get_param('~frequency', default=10)
-        rate = rospy.Rate(frequency)  # Hz
+    serial_port = rospy.get_param('~serial_port', default='/dev/ttyAMA1')
+    baudrate = rospy.get_param('~baudrate', default=115200)
+    with serial.Serial(serial_port, baudrate, timeout=1) as ser:
         while not rospy.is_shutdown():
             ser.reset_input_buffer()
             read_data = ser.read(44)

@@ -11,17 +11,17 @@ from simple_pid import PID
 
 class DepthControl:
     def __init__(self):
+        rospy.init_node('depth_control', anonymous=True)
         self.current_depth = None
         self.setpoint_depth = rospy.get_param('~init_setpoint_depth', default=500)
         self.controlling_flag = False
         self.controlling_flag_old = False
-        self.weight_compensate = rospy.get_param('~weight_compensate', default=50000)
+        self.weight_compensate = rospy.get_param('~weight_compensate', default=10000)
         self.base_output = 0
-        self.pid = PID(150, 0, 50, setpoint=self.setpoint_depth)
+        self.pid = PID(200, 0, 50, setpoint=self.setpoint_depth)
         self.pid.sample_time = 1  # Update every 1 seconds
         self.pid.output_limits = (-180000, 180000)
 
-        rospy.init_node('depth_control', anonymous=True)
         rospy.wait_for_service('scl_passthrough')
         self.control = rospy.ServiceProxy('scl_passthrough', scl)
         config_QA = self.control('DL1')

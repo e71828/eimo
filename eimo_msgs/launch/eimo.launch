@@ -1,0 +1,20 @@
+<launch>
+    <include file="$(find scl_passthrough)/launch/serial_passthrough.launch" />
+
+    <node name="depth" pkg="eimo_msgs" type="depth_ms5837.py">
+        <param name="~density" type='int' value="897"/>
+         <param name="~frequency" type='int' value="1"/>
+    </node>
+
+    <node name="angle" pkg="eimo_msgs" type="witsensor.py">
+        <param name="~frequency" type='int' value="10"/>
+    </node>
+
+    <node name="pca" pkg="pca9685" type="propelling.py">
+    </node>
+
+    <node name="dive" pkg="scl_passthrough" type="diving.py" output="screen">
+        <param name="~init_setpoint_depth" type='int' value="400"/>
+        <param name="~weight_compensate" type='int' value="10000"/>
+    </node>
+</launch>
