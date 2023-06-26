@@ -37,7 +37,7 @@ class I2cPropel:
 
         i2c_port = rospy.get_param('~i2c_port', default='/dev/i2c-3')
 
-        self.pwm = PCA9685.PWM(self.pi, bus=int(i2c_port[-1]))  # defaults to bus 1, address 0x40
+        self.pwm = PCA9685.PWM(self.pi, bus=int(i2c_port[-1]))  # defaults to bus 3, address 0x40
         self.pwm.set_frequency(50)  # suitable for servos
         self.pwm.set_pulse_width(4, 1500)  # -1 for all channels
         self.pwm.set_pulse_width(5, 1500)  # -1 for all channels

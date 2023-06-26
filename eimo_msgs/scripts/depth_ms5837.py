@@ -36,10 +36,10 @@ class I2cMs5837:
         rate = rospy.Rate(self.frequency)  # 1hz
         while not rospy.is_shutdown():
             depth_value = 0
-            # read depth 20 times and get the average value
+            # read depth 90 times and get the average value
             for i in range(90):
                 self.sensor.read(ms5837.OSR_512)
-                depth_value += self.sensor.depth() - self.init_depth
+                depth_value += self.sensor.depth() - self.init_depth # if needed, ignore the init_depth
                 time.sleep(0.01)
             depth_value /= 90
             depth_value_mm = int(depth_value * 1000 + 300)

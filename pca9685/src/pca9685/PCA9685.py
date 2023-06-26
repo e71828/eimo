@@ -156,7 +156,7 @@ if __name__ == "__main__":
     if not pi.connected:
         exit(0)
 
-    pwm = PWM(pi, bus=3)  # defaults to bus 1, address 0x40
+    pwm = PWM(pi, bus=3)  # defaults to bus 3, address 0x40
 
     pwm.set_frequency(50)  # suitable for servos
 
