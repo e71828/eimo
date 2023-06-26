@@ -11,10 +11,12 @@
     </node>
 
     <node name="pca" pkg="pca9685" type="propelling.py">
+        <param name="angle_gains" type='dict' value="{"p": 1, "i": 0.05, "d": 0.2}"/>
     </node>
 
     <node name="dive" pkg="scl_passthrough" type="diving.py" output="screen">
         <param name="~init_setpoint_depth" type='int' value="400"/>
         <param name="~weight_compensate" type='int' value="10000"/>
+        <param name="depth_gains" type='dict' value="{"p": 200, "i": 0, "d": 50}"/>
     </node>
 </launch>

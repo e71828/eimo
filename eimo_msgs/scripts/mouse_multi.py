@@ -28,14 +28,7 @@ def send_control_cmd():
         threshold = 0.9
         gain = 64
         while not rospy.is_shutdown():
-            forward = False
-            backward = False
-            right = False
-            left = False
-            up = False
-            down = False
-            button_0 = False
-            button_1 = False
+            forward, backward, right, left, up, down, button_0, button_1 = 0, 0, 0, 0, 0, 0, 0, 0
             for _ in range(90):
                 state = pyspacemouse.read()
                 if state.y > threshold:

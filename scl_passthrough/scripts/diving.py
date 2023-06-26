@@ -18,7 +18,11 @@ class DepthControl:
         self.controlling_flag_old = False
         self.weight_compensate = rospy.get_param('~weight_compensate', default=10000)
         self.base_output = 0
-        self.pid = PID(200, 0, 50, setpoint=self.setpoint_depth)
+
+        # fetch a group (dictionary) of parameters
+        gains = rospy.get_param('depth_gains', default={"p": 200, "i": 0, "d": 50})
+        p, i, d = gains['p'], gains['i'], gains['d']
+        self.pid = PID(p, i, d, setpoint=self.setpoint_depth)
         self.pid.sample_time = 1 / rospy.get_param('/depth_frequency', default=1)
         self.pid.output_limits = (-180000, 180000)
 
