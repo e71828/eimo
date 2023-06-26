@@ -28,7 +28,7 @@ class I2cPropel:
         self.setpoint_yaw = 0
         self.base_output = 0
         self.pid = PID(1, 0.05, 0.2, setpoint=self.setpoint_yaw, error_map=pi_clip)
-        self.pid.sample_time = 0.1  # Update every 1 seconds
+        self.pid.sample_time = 0.1  # Update every 0.1 seconds
         self.pid.output_limits = (-100, 100)
 
         self.pi = pigpio.pi()
@@ -87,6 +87,8 @@ class I2cPropel:
         elif args == 2:
             self.current_yaw = data.yaw
             self.pid.setpoint = self.setpoint_yaw
+            if abs(self.setpoint_yaw) == 180:
+                self.pid.setpoint = abs(self.setpoint_yaw) if data.yaw > 0 else -abs(self.setpoint_yaw)
             output = self.pid(self.current_yaw)
             rospy.loginfo(f'setpoint_yaw: {self.setpoint_yaw}')
             rospy.loginfo(f'current  yaw: {self.current_yaw}')
