@@ -19,7 +19,7 @@ class DepthControl:
         self.weight_compensate = rospy.get_param('~weight_compensate', default=10000)
         self.base_output = 0
         self.pid = PID(200, 0, 50, setpoint=self.setpoint_depth)
-        self.pid.sample_time = 1  # Update every 1 seconds
+        self.pid.sample_time = 1 / rospy.get_param('/depth_frequency', default=1)
         self.pid.output_limits = (-180000, 180000)
 
         rospy.wait_for_service('scl_passthrough')

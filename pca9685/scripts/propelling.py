@@ -28,7 +28,7 @@ class I2cPropel:
         self.setpoint_yaw = 0
         self.base_output = 0
         self.pid = PID(1, 0.05, 0.2, setpoint=self.setpoint_yaw, error_map=pi_clip)
-        self.pid.sample_time = 0.1  # Update every 0.1 seconds
+        self.pid.sample_time = 1 / rospy.get_param('/angle_frequency', default=10)
         self.pid.output_limits = (-100, 100)
 
         self.pi = pigpio.pi()
