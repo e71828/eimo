@@ -7,7 +7,7 @@ from eimo_msgs.msg import angle
 if __name__ == '__main__':
     pub = rospy.Publisher('angle', angle, queue_size=1)
     rospy.init_node('publish_angle', anonymous=True)
-    frequency = rospy.get_param('/angle_frequency', default=10)
+    frequency = rospy.get_param('angle_frequency', default=10)
     rate = rospy.Rate(frequency)  # Hz
 
     serial_port = rospy.get_param('~serial_port', default='/dev/ttyAMA1')

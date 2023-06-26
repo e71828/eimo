@@ -23,7 +23,7 @@ class DepthControl:
         gains = rospy.get_param('depth_gains', default={"p": 200, "i": 0, "d": 50})
         p, i, d = gains['p'], gains['i'], gains['d']
         self.pid = PID(p, i, d, setpoint=self.setpoint_depth)
-        self.pid.sample_time = 1 / rospy.get_param('/depth_frequency', default=1)
+        self.pid.sample_time = 1 / rospy.get_param('depth_frequency', default=1)
         self.pid.output_limits = (-180000, 180000)
 
         rospy.wait_for_service('scl_passthrough')

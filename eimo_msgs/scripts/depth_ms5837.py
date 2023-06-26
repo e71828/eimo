@@ -12,7 +12,7 @@ class I2cMs5837:
 
         i2c_port = rospy.get_param('~i2c_port', default='/dev/i2c-1')
         fluid_density = rospy.get_param('~density', default=897)
-        self.frequency = rospy.get_param('/depth_frequency', default=1)
+        self.frequency = rospy.get_param('depth_frequency', default=1)
         self.sensor = ms5837.MS5837_02BA(int(i2c_port[-1]))  # Default I2C bus is 1
         self.sensor.setFluidDensity(fluid_density) # kg/m^3
 
