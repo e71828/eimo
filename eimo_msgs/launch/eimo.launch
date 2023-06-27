@@ -4,6 +4,7 @@
     <param name="depth_frequency" type='int' value="1"/>
     <node name="depth" pkg="eimo_msgs" type="depth_ms5837.py">
         <param name="density" type='int' value="897"/>
+        <param name="absolute" type='bool' value="false"/>
     </node>
 
     <param name="angle_frequency" type='int' value="10"/>
