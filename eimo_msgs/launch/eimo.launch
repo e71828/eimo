@@ -1,32 +1,30 @@
 <launch>
-    <group name="eimo_remote">
-        <include file="$(find scl_passthrough)/launch/serial_passthrough.launch" />
+    <include file="$(find scl_passthrough)/launch/serial_passthrough.launch" />
 
-        <param name="depth_frequency" type='int' value="1"/>
-        <node name="depth" pkg="eimo_msgs" type="depth_ms5837.py">
-            <param name="density" type='int' value="897"/>
-        </node>
+    <param name="depth_frequency" type='int' value="1"/>
+    <node name="depth" pkg="eimo_msgs" type="depth_ms5837.py">
+        <param name="density" type='int' value="897"/>
+    </node>
 
-        <param name="angle_frequency" type='int' value="10"/>
-        <node name="angle" pkg="eimo_msgs" type="witsensor.py">
-        </node>
+    <param name="angle_frequency" type='int' value="10"/>
+    <node name="angle" pkg="eimo_msgs" type="witsensor.py">
+    </node>
 
-        <node name="pca" pkg="pca9685" type="propelling.py">
-        </node>
-        <group ns="angle_gains">
-            <param name="p" value="1" />
-            <param name="i" value="0.05" />
-            <param name="d" value="0.2" />
-        </group>
+    <node name="pca" pkg="pca9685" type="propelling.py">
+    </node>
+    <group ns="angle_gains">
+        <param name="p" value="1" />
+        <param name="i" value="0.05" />
+        <param name="d" value="0.2" />
+    </group>
 
-        <node name="dive" pkg="scl_passthrough" type="diving.py" output="screen">
-            <param name="init_setpoint_depth" type='int' value="400"/>
-            <param name="weight_compensate" type='int' value="10000"/>
-        </node>
-        <group ns="depth_gains">
-            <param name="p" value="200" />
-            <param name="i" value="1" />
-            <param name="d" value="50" />
-        </group>
+    <node name="dive" pkg="scl_passthrough" type="diving.py" output="screen">
+        <param name="init_setpoint_depth" type='int' value="400"/>
+        <param name="weight_compensate" type='int' value="10000"/>
+    </node>
+    <group ns="depth_gains">
+        <param name="p" value="200" />
+        <param name="i" value="1" />
+        <param name="d" value="50" />
     </group>
 </launch>

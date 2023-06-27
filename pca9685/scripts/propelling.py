@@ -2,9 +2,9 @@
 from pca9685 import PCA9685
 import rospy
 import pigpio
-import time
-from eimo_msgs.msg import control
-from eimo_msgs.msg import angle
+from rosgraph import is_master_online
+from time import sleep
+from eimo_msgs.msg import control, angle
 from simple_pid import PID
 
 
@@ -29,9 +29,12 @@ class I2cPropel:
         self.base_output = 0
 
         # fetch a group (dictionary) of parameters
-        gains = rospy.get_param('angle_gains', default={"p": 1, "i": 0.05, "d": 0.2})
-        p, i, d = gains['p'], gains['i'], gains['d']
-        self.pid = PID(p, i, d, setpoint=self.setpoint_yaw, error_map=pi_clip)
+        self.gains = rospy.get_param('angle_gains', default={"p": 1, "i": 0.05, "d": 0.2})
+        p, i, d = self.gains['p'], self.gains['i'], self.gains['d']
+        self.p = p
+        self.i = i
+        self.d = d
+        self.pid = PID(self.p, self.i, self.d, setpoint=self.setpoint_yaw, error_map=pi_clip)
         self.pid.sample_time = 1 / rospy.get_param('angle_frequency', default=10)
         self.pid.output_limits = (-100, 100)
 
@@ -45,7 +48,7 @@ class I2cPropel:
         self.pwm.set_frequency(50)  # suitable for servos
         self.pwm.set_pulse_width(4, 1500)  # -1 for all channels
         self.pwm.set_pulse_width(5, 1500)  # -1 for all channels
-        time.sleep(3)
+        sleep(3)
 
         self.light1_level = -1
         self.light2_level = -1
@@ -54,6 +57,8 @@ class I2cPropel:
         self.sub_control = rospy.Subscriber('control', control, self.controlling, 1)
         self.sub_angle = rospy.Subscriber('angle', angle, self.controlling, 2)
         # spin() simply keeps python from exiting until this node is stopped
+        if not is_master_online():
+            rospy.signal_shutdown("ROS master is offline")
         rospy.spin()
         pass
 

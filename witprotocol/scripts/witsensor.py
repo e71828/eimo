@@ -3,6 +3,7 @@ from witprotocol import PacketReader, WITProtocol, PacketID
 import serial
 import rospy
 from eimo_msgs.msg import angle
+from rosgraph import is_master_online
 
 if __name__ == '__main__':
     pub = rospy.Publisher('angle', angle, queue_size=1)
@@ -38,4 +39,6 @@ if __name__ == '__main__':
                         else:
                             pass
                     pub.publish(yaw, roll, pitch, yaw_v, roll_v, pitch_v, yaw_a, roll_a, pitch_a)
+            if is_master_online():
+                rospy.signal_shutdown("ROS master is offline")
             rate.sleep()

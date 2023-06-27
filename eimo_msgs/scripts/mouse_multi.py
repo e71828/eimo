@@ -1,7 +1,8 @@
-import time
 
 import pyspacemouse
 import rospy
+from rosgraph import is_master_online
+from time import sleep
 from eimo_msgs.msg import control
 
 
@@ -47,7 +48,7 @@ def send_control_cmd():
                     button_0 = True
                 if state.buttons[1]:
                     button_1 = True
-                time.sleep(0.01)
+                sleep(0.01)
 
             if right and not left:
                 control_cmd = control(0, 0, gain, 0, 0, 0, 1, button_0, button_1)
@@ -71,6 +72,8 @@ def send_control_cmd():
                 control_cmd = control(0, 0, gain, 0, 0, 0, 0, 0, 0)
             rospy.loginfo(control_cmd)
             pub.publish(control_cmd)
+            if not is_master_online():
+                rospy.signal_shutdown("ROS master is offline")
             rate.sleep()
 
 

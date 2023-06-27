@@ -5,6 +5,7 @@
 import rospy
 from eimo_msgs.srv import scl
 from eimo_msgs.msg import control, depth
+from rosgraph import is_master_online
 from time import sleep
 from simple_pid import PID
 
@@ -20,9 +21,12 @@ class DepthControl:
         self.base_output = 0
 
         # fetch a group (dictionary) of parameters
-        gains = rospy.get_param('depth_gains', default={"p": 200, "i": 0, "d": 50})
-        p, i, d = gains['p'], gains['i'], gains['d']
-        self.pid = PID(p, i, d, setpoint=self.setpoint_depth)
+        self.gains = rospy.get_param('depth_gains', default={"p": 200, "i": 0, "d": 50})
+        p, i, d = self.gains['p'], self.gains['i'], self.gains['d']
+        self.p = p
+        self.i = i
+        self.d = d
+        self.pid = PID(self.p, self.i, self.d, setpoint=self.setpoint_depth)
         self.pid.sample_time = 1 / rospy.get_param('depth_frequency', default=1)
         self.pid.output_limits = (-180000, 180000)
 
@@ -71,6 +75,10 @@ class DepthControl:
         self.sub_control = rospy.Subscriber('control', control, self.diving, 1, queue_size=3)
         self.sub_depth = rospy.Subscriber('depth', depth, self.diving, 2, queue_size=3)
 
+        if not is_master_online():
+            self.config('FP-1700000')
+            sleep(20)
+            rospy.signal_shutdown("ROS master is offline")
         rospy.spin()
 
     def go_back_to_mid_position(self):

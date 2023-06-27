@@ -9,6 +9,7 @@ import rospy
 from eimo_msgs.srv import scl, sclResponse
 import serial
 from time import sleep
+from rosgrpah import is_master_online
 
 
 class SCLPassthroughNode:
@@ -30,6 +31,9 @@ class SCLPassthroughNode:
         except serial.SerialException as e:
             rospy.logerr("Unable to open serial port {}".format(e))
             return
+
+        if is_master_online():
+            rospy.signal_shutdown("ROS master is offline")
 
         rospy.spin()
 
