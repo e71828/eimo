@@ -96,6 +96,8 @@ class DepthControl:
 
     def diving(self, data, args):
         if args == 1:
+            self.gains = rospy.get_param('depth_gains')
+            self.pid.tunings = (self.gains['p'], self.gains['i'], self.gains['d'])
             if data.light1 and data.light2 and data.up:
                 self.config('SKD') if self.controlling_flag_old != self.controlling_flag else None
                 self.controlling_flag_old = self.controlling_flag

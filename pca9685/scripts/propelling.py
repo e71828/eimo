@@ -69,6 +69,8 @@ class I2cPropel:
         rospy.loginfo('Welcome Back to Stop Safely')
 
     def controlling(self, data, args):
+        self.gains = rospy.get_param('angle_gains')
+        self.pid.tunings = (self.gains['p'], self.gains['i'], self.gains['d'])
         if args == 1:
             if data.light1 and not data.up and not data.down:
                 self.light1_level = self.light1_level + 1 if self.light1_level < 8 else 0
