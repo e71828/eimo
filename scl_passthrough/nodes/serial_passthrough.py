@@ -12,6 +12,11 @@ from time import sleep
 from rosgrpah import is_master_online
 
 
+def check_master_status():
+    if is_master_online():
+        rospy.signal_shutdown("ROS master is offline")
+
+
 class SCLPassthroughNode:
 
     def __init__(self):
@@ -32,8 +37,7 @@ class SCLPassthroughNode:
             rospy.logerr("Unable to open serial port {}".format(e))
             return
 
-        if is_master_online():
-            rospy.signal_shutdown("ROS master is offline")
+        rospy.Timer(rospy.Duration(300), check_master_status)
 
         rospy.spin()
 

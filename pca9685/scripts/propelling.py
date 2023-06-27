@@ -7,6 +7,9 @@ from time import sleep
 from eimo_msgs.msg import control, angle
 from simple_pid import PID
 
+def check_master_status():
+    if is_master_online():
+        rospy.signal_shutdown("ROS master is offline")
 
 def pi_clip(angle):
     if angle > 0:
@@ -53,11 +56,10 @@ class I2cPropel:
         self.light2_level = -1
 
         rospy.on_shutdown(self.shutdown)
+        rospy.Timer(rospy.Duration(300), check_master_status)
         self.sub_control = rospy.Subscriber('control', control, self.controlling, 1)
         self.sub_angle = rospy.Subscriber('angle', angle, self.controlling, 2)
         # spin() simply keeps python from exiting until this node is stopped
-        if not is_master_online():
-            rospy.signal_shutdown("ROS master is offline")
         rospy.spin()
         pass
 

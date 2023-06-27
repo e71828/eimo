@@ -71,15 +71,17 @@ class DepthControl:
         self.config('SP0')
         rospy.loginfo(f"reset middle position")
         rospy.on_shutdown(self.go_back_to_mid_position)
+        rospy.Timer(rospy.Duration(300), self.check_master_status)
 
         self.sub_control = rospy.Subscriber('control', control, self.diving, 1, queue_size=3)
         self.sub_depth = rospy.Subscriber('depth', depth, self.diving, 2, queue_size=3)
+        rospy.spin()
 
+    def check_master_status(self):
         if not is_master_online():
             self.config('FP-1700000')
             sleep(20)
             rospy.signal_shutdown("ROS master is offline")
-        rospy.spin()
 
     def go_back_to_mid_position(self):
         self.config('FP0')
