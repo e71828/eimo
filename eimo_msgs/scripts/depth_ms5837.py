@@ -36,19 +36,19 @@ class I2cMs5837:
     def pub_depth(self):
         rate = rospy.Rate(self.frequency)  # 1hz
         while not rospy.is_shutdown():
-            init_depth = 0 if rospy.get_param('absolute', default=False) else self.init_depth
+            init_depth = 0 if rospy.get_param('absolute_height', default=False) else self.init_depth
             depth_value = 0
             # read depth 90 times and get the average value
-            for _ in range(90):
+            for _ in range(30):
                 self.sensor.read(ms5837.OSR_512)
                 depth_value += self.sensor.depth() - init_depth # if needed, ignore the init_depth
                 time.sleep(0.01)
-            depth_value /= 90
+            depth_value /= 30
             depth_value_mm = int(depth_value * 1000 + 300)
+            if depth_value_mm < 0:
+                depth_value_mm = 0
             self.depth_publisher.publish(depth_value_mm)
             rospy.loginfo('mm: {}'.format(depth_value_mm))
-            if not is_master_online():
-                rospy.signal_shutdown("ROS master is offline")
             rate.sleep()
 
 
