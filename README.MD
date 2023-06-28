@@ -5,10 +5,21 @@
 |------------------|-----------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|-------------------------------------------|
 | eimo_msgs        | Control, Depth, Angle.                                                                        | depth_ms5837.py<br/>mouse_multi.py<br/>witsensor.py<br/>request_voltage.py | ms5837<br/>pyspacemouse<br/>libhidapi-dev |
 | pac9685          | Light, Propeller.                                                                             |                                                                            | pigpio<br/>simple_pid<br/>                |
-| pyspacenavigator | Angle on Windows Platform Only; Provide Control. P.S. there is alternative package for Linux. | mouse.py<br/>mouse_test.py<br/>mouse_trigger.py                            | pywinusb                                  |
 | scl_passthrough  | Passthrough for Moons step servo Motor; Provide Depth, Voltage.                               | diving.py<br/>srv: serial_passthrough.py                                   | serial                                    |
-| testa            | Test as fresh man.                                                                            |                                                                            |                                           |
 | witprotocol      | Provide Angle.                                                                                |                                                                            | serial                                    |
+
+## Rosnode Description
+
+![rosgraph](C:\Users\admin\PycharmProjects\eimo\rosgraph.png)
+
+## Roslaunch Description
+
+| Roslaunch Name                         | Description                                                                                              | ~/.bashrc                                                                                                                                                                   | Machine |
+|----------------------------------------|----------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
+| eimo.launch                            | robot will wait for control                                                                              | source /opt/ros/noetic/setup.bash <br/>source /home/ubuntu/eimo_remote/devel/setup.sh <br/>export ROS_MASTER_URI=http://192.168.31.16:11311<br/>export ROS_IP=192.168.31.16 | remote  |
+| mouse.launch<br/>(include eimo.launch) | robot will be controlled<br/>Attention: cp [eimo.sh](eimo_msgs\scripts\eimo.sh)  to /home/ubuntu/eimo.sh | source /opt/ros/noetic/setup.bash <br/>source /home/zngz/eimo_ws/devel/setup.sh <br/>export ROS_MASTER_URI=http://192.168.31.16:11311<br/>export ROS_IP=192.168.31.236      | local   |
+
+
 
 ## Service
 ```bash
