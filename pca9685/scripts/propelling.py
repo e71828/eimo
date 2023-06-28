@@ -11,9 +11,10 @@ def pi_clip(angle):
     if angle > 180:
         return angle - 360
     elif angle < -180:
-        return angle + 2 * 360
+        return angle + 360
     else:
         return angle
+# 175->180->-175->-180->175
 
 
 class I2cPropel:
@@ -86,12 +87,10 @@ class I2cPropel:
             elif data.turn_left:
                 self.setpoint_yaw -= 5
                 self.setpoint_yaw = pi_clip(self.setpoint_yaw)
-                self.setpoint_yaw = pi_clip(self.setpoint_yaw)  # 175->180->-175->-180->535->175, avoid 535
                 rospy.loginfo('turn left')
             elif data.turn_right:
                 self.setpoint_yaw += 5
                 self.setpoint_yaw = pi_clip(self.setpoint_yaw)
-                self.setpoint_yaw = pi_clip(self.setpoint_yaw)  # 175->180->-175->-180->535->175, avoid 535
                 rospy.loginfo('turn right')
         elif args == 2:
             self.current_yaw = data.yaw
