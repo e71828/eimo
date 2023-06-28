@@ -10,7 +10,7 @@
 
 ## Rosnode Description
 
-![rosgraph](C:\Users\admin\PycharmProjects\eimo\rosgraph.png)
+![rosgraph](rosgraph.png)
 
 ## Roslaunch Description
 
