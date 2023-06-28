@@ -43,21 +43,10 @@ class DepthControl:
     def __init__(self):
         rospy.init_node('depth_control', anonymous=True)
         self.current_depth = None
-        self.setpoint_depth = rospy.get_param('~init_setpoint_depth', default=500)
         self.controlling_flag = False
         self.controlling_flag_old = False
         self.weight_compensate = rospy.get_param('~weight_compensate', default=10000)  # total: 6.43kg
         self.base_output = 0
-
-        # fetch a group (dictionary) of parameters
-        self.gains = rospy.get_param('depth_gains', default={"p": 200, "i": 0, "d": 50})
-        p, i, d = self.gains['p'], self.gains['i'], self.gains['d']
-        self.p = p
-        self.i = i
-        self.d = d
-        self.pid = PID(self.p, self.i, self.d, setpoint=self.setpoint_depth)
-        self.pid.sample_time = 1 / rospy.get_param('depth_frequency', default=1)
-        self.pid.output_limits = (-180000, 180000)
 
         sleep(3)  # wait here for 3 seconds
         rospy.wait_for_service('scl_passthrough')
@@ -101,6 +90,17 @@ class DepthControl:
         self.config('SP0')
         rospy.loginfo(f"reset middle position")
         rospy.on_shutdown(self.go_back_to_mid_position)
+
+        self.setpoint_depth = rospy.get_param('init_depth') + 400
+        # fetch a group (dictionary) of parameters
+        self.gains = rospy.get_param('depth_gains', default={"p": 200, "i": 0, "d": 50})
+        p, i, d = self.gains['p'], self.gains['i'], self.gains['d']
+        self.p = p
+        self.i = i
+        self.d = d
+        self.pid = PID(self.p, self.i, self.d, setpoint=self.setpoint_depth)
+        self.pid.sample_time = 1 / rospy.get_param('depth_frequency', default=1)
+        self.pid.output_limits = (-180000, 180000)
 
         self.sub_control = rospy.Subscriber('control', control, self.diving, 1, queue_size=3)
         self.sub_depth = rospy.Subscriber('depth', depth, self.diving, 2, queue_size=3)

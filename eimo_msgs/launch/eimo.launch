@@ -2,7 +2,7 @@
     <include file="$(find scl_passthrough)/launch/serial_passthrough.launch" />
 
     <param name="depth_frequency" type='int' value="1"/>
-    <param name="absolute_height" type='bool' value="false"/>
+    <param name="init_depth" type='int'/>
     <node name="depth" pkg="eimo_msgs" type="depth_ms5837.py">
         <param name="density" type='int' value="897"/>
     </node>
