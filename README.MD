@@ -81,3 +81,21 @@ ExecStart=/home/ubuntu/camera.sh
 [Install]
 WantedBy=multi-user.target
 ```
+
+```bash
+# cat /etc/systemd/system/roscore.service
+[Unit]
+Description=start roscore
+After=remote-fs.target
+After=syslog.target
+After=network.target
+After=systemd-user-sessions.service
+[Service]
+Type=idle
+User=ubuntu
+UMask=007
+ExecStart=/home/ubuntu/roscore.sh
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
+```
