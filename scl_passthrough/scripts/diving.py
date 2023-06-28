@@ -8,6 +8,36 @@ from eimo_msgs.msg import control, depth
 from time import sleep
 from simple_pid import PID
 
+"""
+                                      1                                
+                           <--------------------->                     
+                         /-                       -\                   
+               3      /--                           --\   3.1          
+                   /--                                 --\             
+                 /-                                       -\           
+              /--                                           --\        
+            --                                                 --      
+            ^                                                   ^          
+            |                                                   |      
+            |                                                   |      
+         1  |                                                   |  1   
+            |                                                   |        
+            |                                                   |      
+            v                                                   v      
+            --                                                 --      
+              \-                                            --/        
+                \--                                       -/           
+                   \--                                 --/             
+              5       \-                            --/    5           
+                        \-                        -/                   
+                           <--------------------->                     
+                                     3.5                                
+
+                              # robot: 6.09kg
+                              # total: 6.43kg
+                           # counterweight: 0.34kg
+                     # details: 1, 3.1, 1, 5, 3.5, 5, 1, 3
+"""
 
 class DepthControl:
     def __init__(self):
@@ -16,7 +46,7 @@ class DepthControl:
         self.setpoint_depth = rospy.get_param('~init_setpoint_depth', default=500)
         self.controlling_flag = False
         self.controlling_flag_old = False
-        self.weight_compensate = rospy.get_param('~weight_compensate', default=10000)
+        self.weight_compensate = rospy.get_param('~weight_compensate', default=10000)  # total: 6.43kg
         self.base_output = 0
 
         # fetch a group (dictionary) of parameters
