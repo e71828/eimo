@@ -30,6 +30,7 @@ class DepthControl:
         self.pid.sample_time = 1 / rospy.get_param('depth_frequency', default=1)
         self.pid.output_limits = (-180000, 180000)
 
+        sleep(3)  # wait here for 3 seconds
         rospy.wait_for_service('scl_passthrough')
         self.control = rospy.ServiceProxy('scl_passthrough', scl)
         config_QA = self.control('DL1')
@@ -71,17 +72,10 @@ class DepthControl:
         self.config('SP0')
         rospy.loginfo(f"reset middle position")
         rospy.on_shutdown(self.go_back_to_mid_position)
-        rospy.Timer(rospy.Duration(300), self.check_master_status)
 
         self.sub_control = rospy.Subscriber('control', control, self.diving, 1, queue_size=3)
         self.sub_depth = rospy.Subscriber('depth', depth, self.diving, 2, queue_size=3)
         rospy.spin()
-
-    def check_master_status(self):
-        if not is_master_online():
-            self.config('FP-1700000')
-            sleep(20)
-            rospy.signal_shutdown("ROS master is offline")
 
     def go_back_to_mid_position(self):
         self.config('FP0')
