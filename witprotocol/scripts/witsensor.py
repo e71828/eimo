@@ -3,8 +3,6 @@ from witprotocol import PacketReader, WITProtocol, PacketID
 import serial
 import rospy
 from eimo_msgs.msg import angle
-from rosgraph import is_master_online
-from time import sleep
 
 if __name__ == '__main__':
     pub = rospy.Publisher('angle', angle, queue_size=1)

@@ -5,7 +5,6 @@
 import rospy
 from eimo_msgs.srv import scl
 from eimo_msgs.msg import control, depth
-from rosgraph import is_master_online
 from time import sleep
 from simple_pid import PID
 

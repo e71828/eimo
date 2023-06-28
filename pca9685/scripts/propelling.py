@@ -2,7 +2,6 @@
 from pca9685 import PCA9685
 import rospy
 import pigpio
-from rosgraph import is_master_online
 from time import sleep
 from eimo_msgs.msg import control, angle
 from simple_pid import PID

@@ -9,7 +9,6 @@ import rospy
 from eimo_msgs.srv import scl, sclResponse
 import serial
 from time import sleep
-from rosgraph import is_master_online
 
 
 class SCLPassthroughNode:

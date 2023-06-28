@@ -3,7 +3,6 @@ import time
 import ms5837
 import rospy
 from eimo_msgs.msg import depth
-from rosgraph import is_master_online
 
 
 class I2cMs5837:
