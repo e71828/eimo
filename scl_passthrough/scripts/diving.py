@@ -33,7 +33,7 @@ from simple_pid import PID
                            <--------------------->                     
                                      3.5                                
 
-                              # robot: 6.09kg
+                              # robot: 5.5kg
                               # total: 6.43kg
                            # counterweight: 0.34kg
                      # details: 1, 3.1, 1, 5, 3.5, 5, 1, 3
