@@ -7,18 +7,14 @@ from time import sleep
 from eimo_msgs.msg import control, angle
 from simple_pid import PID
 
-def check_master_status():
-    if is_master_online():
-        rospy.signal_shutdown("ROS master is offline")
 
 def pi_clip(angle):
-    if angle > 0:
-        if angle > 180:
-            return angle - 360
+    if angle > 180:
+        return angle - 360
+    elif angle < -180:
+        return angle + 2 * 360
     else:
-        if angle < -180:
-            return angle + 2 * 360
-    return angle
+        return angle
 
 
 class I2cPropel:
@@ -56,7 +52,6 @@ class I2cPropel:
         self.light2_level = -1
 
         rospy.on_shutdown(self.shutdown)
-        rospy.Timer(rospy.Duration(300), check_master_status)
         self.sub_control = rospy.Subscriber('control', control, self.controlling, 1)
         self.sub_angle = rospy.Subscriber('angle', angle, self.controlling, 2)
         # spin() simply keeps python from exiting until this node is stopped
@@ -64,6 +59,7 @@ class I2cPropel:
         pass
 
     def shutdown(self):
+        sleep(3)  # wait for other using
         self.pwm.cancel()
         self.pi.stop()
         self.sub_control.unregister()
@@ -91,10 +87,12 @@ class I2cPropel:
             elif data.turn_left:
                 self.setpoint_yaw -= 5
                 self.setpoint_yaw = pi_clip(self.setpoint_yaw)
+                self.setpoint_yaw = pi_clip(self.setpoint_yaw)  # 175->180->-175->-180->535->175, avoid 535
                 rospy.loginfo('turn left')
             elif data.turn_right:
                 self.setpoint_yaw += 5
                 self.setpoint_yaw = pi_clip(self.setpoint_yaw)
+                self.setpoint_yaw = pi_clip(self.setpoint_yaw)  # 175->180->-175->-180->535->175, avoid 535
                 rospy.loginfo('turn right')
         elif args == 2:
             self.current_yaw = data.yaw
