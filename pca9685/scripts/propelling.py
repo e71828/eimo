@@ -46,7 +46,7 @@ class I2cPropel:
         self.pwm.set_frequency(50)  # suitable for servos
         self.pwm.set_pulse_width(4, 1500)  # -1 for all channels
         self.pwm.set_pulse_width(5, 1500)  # -1 for all channels
-        sleep(3)
+        sleep(3)  # init the speed controller
 
         self.light1_level = -1
         self.light2_level = -1
