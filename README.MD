@@ -189,4 +189,7 @@ WantedBy=multi-user.target
 +--------+                +----------+                                      +--------+ +--------+       |    
 | Charge |                |Light x 2 <-----------------------------PWM+Ground---------------------------+    
 +--------+                +----------+                                                                       
-```                                                                    
+```
+### Break Board
+
+![break_board.jpg](break_board.JPG)
