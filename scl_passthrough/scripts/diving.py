@@ -110,16 +110,16 @@ class DepthControl:
             elif data.up and not data.down:
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = False
-                self.setpoint_depth -= 20
+                self.setpoint_depth -= 10
             elif data.down and not data.up:
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = False
-                self.setpoint_depth += 20
+                self.setpoint_depth += 10
             else:
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = False
-            if self.setpoint_depth < 400:
-                self.setpoint_depth = 400
+            if self.setpoint_depth < 0:
+                self.setpoint_depth = 0
         elif args == 2:
             self.current_depth = data.depth_mm
             if not self.controlling_flag and not self.controlling_flag_old:
