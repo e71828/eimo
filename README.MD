@@ -14,10 +14,10 @@
 
 ## Roslaunch Description
 
-| Roslaunch Name                                                          | Description                                                                                                                                    | ~/.bashrc                                                                                                                                                                   | Machine |
-|-------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
-| [eimo.launch](eimo_msgs/launch/eimo.launch)                             | robot will wait for control                                                                                                                    | source /opt/ros/noetic/setup.bash <br/>source /home/ubuntu/eimo_remote/devel/setup.sh <br/>export ROS_MASTER_URI=http://192.168.31.16:11311<br/>export ROS_IP=192.168.31.16 | remote  |
-| [mouse.launch](eimo_msgs/launch/mouse.launch)<br/>(include eimo.launch) | robot will be controlled<br/>Attention: <br/>Copy [eimo.sh](eimo_msgs\scripts\eimo.sh)  to /home/ubuntu/eimo.sh<br/>Be sure roscore is running | source /opt/ros/noetic/setup.bash <br/>source /home/zngz/eimo_ws/devel/setup.sh <br/>export ROS_MASTER_URI=http://192.168.31.16:11311<br/>export ROS_IP=192.168.31.236      | local   |
+| Roslaunch Name                                                          | Description                                                                                                                                      | ~/.bashrc                                                                                                                                                                   | Machine |
+|-------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
+| [eimo.launch](eimo_msgs/launch/eimo.launch)                             | robot will wait for control                                                                                                                      | source /opt/ros/noetic/setup.bash <br/>source /home/ubuntu/eimo_remote/devel/setup.sh <br/>export ROS_MASTER_URI=http://192.168.31.16:11311<br/>export ROS_IP=192.168.31.16 | remote  |
+| [mouse.launch](eimo_msgs/launch/mouse.launch)<br/>(include eimo.launch) | robot will be controlled<br/>Attention: <br/>Copy [eimo.sh](eimo_msgs\scripts\eimo.sh)  to /home/ubuntu/eimo.sh; <br/>Be sure roscore is running | source /opt/ros/noetic/setup.bash <br/>source /home/zngz/eimo_ws/devel/setup.sh <br/>export ROS_MASTER_URI=http://192.168.31.16:11311<br/>export ROS_IP=192.168.31.236      | local   |
 
 
 
@@ -155,7 +155,7 @@ At present, the functions are being gradually improved and optimized, and the co
                      # 22*40+6*5+19*0.64+2.8*6+4.0*10=979.0g
                      # 40g: 1+3+1+5+3+5+1+3=22; 22*40=880
                      # 5g: (0.1+0.5)*10=6; 6*5=30
-                     # M4: 1.7g; 19*0.64=12.16
+                     # M4: 0.64; 19*0.64=12.16
                      # M4x22 2.8; 2.8*6=16.8
                      # M4x40 4.0; 4.0*10=40
 ```
