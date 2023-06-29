@@ -51,7 +51,7 @@ class DepthControl:
         self.current_depth = None
         self.controlling_flag = False
         self.controlling_flag_old = False
-        self.weight_compensate = rospy.get_param('~weight_compensate', default=10000)  # total: 6.43kg
+        self.weight_compensate = rospy.get_param('~weight_compensate', default=10000)
         self.base_output = 0
 
         sleep(3)  # wait here for 3 seconds
@@ -127,6 +127,7 @@ class DepthControl:
 
     def diving(self, data, args):
         if args == 1:
+            self.weight_compensate = rospy.get_param('~weight_compensate')
             self.gains = rospy.get_param('depth_gains')
             self.pid.tunings = (self.gains['p'], self.gains['i'], self.gains['d'])
             if data.light1 and data.light2 and data.up:
