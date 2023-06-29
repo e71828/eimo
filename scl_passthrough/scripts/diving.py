@@ -33,10 +33,16 @@ from simple_pid import PID
                            <--------------------->                     
                                      3.5                                
 
-                              # robot: 5.5kg
-                              # total: 6.43kg
-                           # counterweight: 0.34kg
+                              # robot: 5.47kg
+                              # total: 6.45kg
+                           # counterweight: 0.978kg
                      # details: 1, 3.1, 1, 5, 3.5, 5, 1, 3
+                     # 22*40+6*5+17*0.7+2.8*6+4.0*10=978.7g
+                     # 40g: 1+3+1+5+3+5+1+3=22; 22*40=880
+                     # 5g: (0.1+0.5)*10=6; 6*5=30
+                     # M4: 1.7g; 17*0.7=11.9
+                     # M4x22 2.8; 2.8*6=16.8
+                     # M4x40 4.0; 4.0*10=40
 """
 
 class DepthControl:
