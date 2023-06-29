@@ -20,23 +20,6 @@ def pi_clip(angle):
 class I2cPropel:
     def __init__(self):
         rospy.init_node('propelling_control', anonymous=True)
-        self.yaw = []
-        self.current_yaw = .0
-        self.current_yaw_v = None
-        self.current_yaw_a = None
-        self.setpoint_yaw = 0
-        self.base_output = 0
-
-        # fetch a group (dictionary) of parameters
-        self.gains = rospy.get_param('angle_gains', default={"p": 1, "i": 0.05, "d": 0.2})
-        p, i, d = self.gains['p'], self.gains['i'], self.gains['d']
-        self.p = p
-        self.i = i
-        self.d = d
-        self.pid = PID(self.p, self.i, self.d, setpoint=self.setpoint_yaw, error_map=pi_clip)
-        self.pid.sample_time = 1 / rospy.get_param('angle_frequency', default=10)
-        self.pid.output_limits = (-100, 100)
-
         self.pi = pigpio.pi()
         if not self.pi.connected:
             return
@@ -50,6 +33,22 @@ class I2cPropel:
 
         self.light1_level = -1
         self.light2_level = -1
+        self.yaw = []
+        self.current_yaw = .0
+        self.current_yaw_v = None
+        self.current_yaw_a = None
+        self.setpoint_yaw = rospy.get_param('init_yaw')
+        self.base_output = 0
+
+        # fetch a group (dictionary) of parameters
+        self.gains = rospy.get_param('angle_gains', default={"p": 1, "i": 0.05, "d": 0.2})
+        p, i, d = self.gains['p'], self.gains['i'], self.gains['d']
+        self.p = p
+        self.i = i
+        self.d = d
+        self.pid = PID(self.p, self.i, self.d, setpoint=self.setpoint_yaw, error_map=pi_clip)
+        self.pid.sample_time = 1 / rospy.get_param('angle_frequency', default=10)
+        self.pid.output_limits = (-100, 100)
 
         rospy.on_shutdown(self.shutdown)
         self.sub_control = rospy.Subscriber('control', control, self.controlling, 1)
@@ -100,8 +99,8 @@ class I2cPropel:
             output = self.pid(self.current_yaw)
             rospy.loginfo(f'setpoint_yaw: {self.setpoint_yaw}')
             rospy.loginfo(f'current  yaw: {self.current_yaw}')
-            rospy.loginfo(f'output: {output}')
-            rospy.loginfo(f'base_output: {self.base_output}')
+            rospy.loginfo(f'output: {output:.1f}')
+            rospy.loginfo(f'base_output: {self.base_output:.1f}')
             if self.base_output > 0:
                 self.pwm.set_pulse_width(4, 1524  - output + self.base_output)
                 self.pwm.set_pulse_width(5, 1527  + output + self.base_output)

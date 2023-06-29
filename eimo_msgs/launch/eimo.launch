@@ -19,6 +19,7 @@
         <param name="d" value="0.2" />
     </group>
 
+    <param name="init_yaw" type='int' value="0"/>
     <node name="dive" pkg="scl_passthrough" type="diving.py">
         <param name="weight_compensate" type='int' value="10000"/>
     </node>
