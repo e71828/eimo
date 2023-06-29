@@ -95,8 +95,8 @@ class I2cPropel:
         elif args == 2:
             self.current_yaw = data.yaw
             self.pid.setpoint = self.setpoint_yaw
-            if abs(self.setpoint_yaw) == 180:
-                self.pid.setpoint = abs(self.setpoint_yaw) if data.yaw > 0 else -abs(self.setpoint_yaw)
+            # if abs(self.setpoint_yaw) == 180:
+            #     self.pid.setpoint = abs(self.setpoint_yaw) if data.yaw > 0 else -abs(self.setpoint_yaw)
             output = self.pid(self.current_yaw)
             rospy.loginfo(f'setpoint_yaw: {self.setpoint_yaw}')
             rospy.loginfo(f'current  yaw: {self.current_yaw}')
