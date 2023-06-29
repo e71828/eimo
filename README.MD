@@ -115,6 +115,12 @@ WantedBy=multi-user.target
 
 ![preview](preview.JPG)
 
+The robot has a total mass of 5.5 kg(no counterweight), is cylindrical, has an overall size outer diameter of 216 mm, and a total height of 300 mm (excluding reserved plugs). 
+That is, it can realize the simple functional actions of floating and sinking, forward and backward, and left and right rotation in transformer oil, and can also stabilize the height (depth) and maintain the forward direction to sail in the oil, and can also sail on the water surface.
+The robot cannot communicate wireless underwater, but can maintain a certain communication quality in oil, so it can realize basic observation and image sampling in oil. 
+The robot has undergone multiple reconstructions and developments in the laboratory, and field inspections and tests by the company. 
+At present, the functions are being gradually improved and optimized, and the control method is becoming more and more humanized and technologically modernized.
+
 ### Counterweight Details
 
 ```
