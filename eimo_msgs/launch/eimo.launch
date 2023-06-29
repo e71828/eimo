@@ -20,7 +20,6 @@
     </group>
 
     <node name="dive" pkg="scl_passthrough" type="diving.py">
-        <param name="init_setpoint_depth" type='int' value="400"/>
         <param name="weight_compensate" type='int' value="10000"/>
     </node>
     <group ns="depth_gains">
