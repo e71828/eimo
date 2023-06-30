@@ -1,6 +1,6 @@
-int yaw
-int roll
-int pitch
+int32 yaw
+int32 roll
+int32 pitch
 float32 yaw_v
 float32 roll_v
 float32 pitch_v
