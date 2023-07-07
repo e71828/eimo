@@ -10,7 +10,7 @@ class AngleWitSensor(Node):
         super().__init__('publish_angle')
         self.angle_publisher = self.create_publisher(Angle, 'Angle', 10)
         self.declare_parameter('angle_frequency', 10)
-        self.declare_parameter('~serial_port', '/dev/ttyAMA0')
+        self.declare_parameter('~serial_port', '/dev/ttyAMA1')
         self.declare_parameter('~baudrate', 115200)
         self.declare_parameter('init_yaw', 0)
 
