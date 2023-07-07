@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'depth = robot.depth_ms5837:main',
+            'angle = robot.angle_witsensor:main',
         ],
     },
 )

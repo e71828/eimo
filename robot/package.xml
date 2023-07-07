@@ -9,7 +9,8 @@
 
   <depend>smbus2</depend>
   <depend>simple-pid</depend>
-  <depend>ms5837</depend>
+<!--  <depend>ms5837</depend>-->
+  <depend>python3-serial</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
