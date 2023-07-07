@@ -13,7 +13,7 @@ def i2b(*args):
 
 class MouseMulti(Node):
     def __init__(self):
-        super().__init__('mouse_multiplatform')
+        super().__init__('publish_control_cmd')
         self.publisher_ = self.create_publisher(Control, 'Control', 10)
         print("Devices found:\n\t%s" % "\n\t".join(pyspacemouse.list_devices()))
         dev = pyspacemouse.open()
