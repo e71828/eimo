@@ -1,4 +1,4 @@
-
+# !/bin/python3
 import rclpy
 from rclpy.node import Node
 import pyspacemouse
@@ -16,28 +16,31 @@ class MouseMulti(Node):
         super().__init__('publish_control_cmd')
         self.publisher_ = self.create_publisher(Control, 'Control', 10)
         print("Devices found:\n\t%s" % "\n\t".join(pyspacemouse.list_devices()))
-        dev = pyspacemouse.open()
-        if dev:
+        try:
+            dev = pyspacemouse.open()
             print(dev.describe_connection())
-            state = pyspacemouse.read()
-            if state:
-                print(
-                    " ".join(
-                        [
-                            "%4s %+.2f" % (k, getattr(state, k))
-                            for k in ["x", "y", "z", "roll", "pitch", "yaw", "t"]
-                        ]
-                    )
+        except Exception as e:
+            print("Unable to connect to device.")
+            return
+        state = pyspacemouse.read()
+        if state:
+            print(
+                " ".join(
+                    [
+                        "%4s %+.2f" % (k, getattr(state, k))
+                        for k in ["x", "y", "z", "roll", "pitch", "yaw", "t"]
+                    ]
                 )
-                print("".join(["buttons=", str(state.buttons)]))
+            )
+            print("".join(["buttons=", str(state.buttons)]))
 
-            sleep(4)  # wait here
-            self.declare_parameter('~frequency', 1)
-            self.frequency = self.get_parameter('~frequency').get_parameter_value().integer_value
-            self.threshold = 0.9
-            self.gain = 64
-            self.rec_num = int(100 / self.frequency)
-            self.timer = self.create_timer(1/self.frequency, self.timer_callback)
+        sleep(4)  # wait here
+        self.declare_parameter('~frequency', 1)
+        self.frequency = self.get_parameter('~frequency').get_parameter_value().integer_value
+        self.threshold = 0.9
+        self.gain = 64
+        self.rec_num = int(100 / self.frequency)
+        self.timer = self.create_timer(1/self.frequency, self.timer_callback)
 
     def timer_callback(self):
         forward, backward, right, left, up, down, button_0, button_1 = False, False, False, False, False, False, False, False
