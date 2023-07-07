@@ -8,7 +8,7 @@ from eimo_msgs.msg import Angle
 class AngleWitSensor(Node):
     def __init__(self):
         super().__init__('publish_angle')
-        self.angle_publisher = self.create_publisher(Angle, 'Angle', 10)
+        self.angle_publisher = self.create_publisher(Angle, 'angle', 10)
         self.declare_parameter('angle_frequency', 10)
         self.declare_parameter('~serial_port', '/dev/ttyAMA1')
         self.declare_parameter('~baudrate', 115200)
