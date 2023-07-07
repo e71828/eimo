@@ -9,7 +9,7 @@ from eimo_msgs.msg import Depth
 class I2cMs5837(Node):
     def __init__(self):
         super().__init__('publish_depth')
-        self.depth_publisher = self.create_publisher(Depth, 'Depth', 10)
+        self.depth_publisher = self.create_publisher(Depth, 'depth', 10)
         self.declare_parameter('depth_frequency', 1)
         self.declare_parameter('~i2c_port', '/dev/i2c-1')
         self.declare_parameter('~density', 897)
