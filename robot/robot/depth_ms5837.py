@@ -1,4 +1,4 @@
-
+# !/bin/python3
 import rclpy
 from rclpy.node import Node
 import ms5837
@@ -34,12 +34,12 @@ class I2cMs5837(Node):
             self.init_depth = depth_value / 6
             self.get_logger().info('init m: {}'.format(self.init_depth))
 
-            new_depth = rclpy.parameter.Parameter(
+            init_depth = rclpy.parameter.Parameter(
                 'init_depth',
                 rclpy.Parameter.Type.INTEGER,
                 int(self.init_depth * 1000)
             )
-            self.set_parameters([new_depth])
+            self.set_parameters([init_depth])
 
             self.timer = self.create_timer(1 / self.frequency, self.pub_depth)
 
