@@ -85,8 +85,8 @@ class DepthControl(Node):
         self.pid.sample_time = 1 / self.get_parameter('depth_frequency').get_parameter_value().integer_value
         self.pid.output_limits = (-180000, 180000)
 
-        self.sub_control = self.create_subscription(Control, 'control', self.diving, 1, queue_size=3)
-        self.sub_depth = self.create_subscription(Depth, 'depth', self.diving, 2, queue_size=3)
+        self.sub_control = self.create_subscription(Control, 'control', self.deal_control_cmd)
+        self.sub_depth = self.create_subscription(Depth, 'depth', self.keep_depth)
 
     def __del__(self):
         self.config('FP0')
@@ -104,28 +104,27 @@ class DepthControl(Node):
             self.gget_logger().debug(f'Config with string: {config_str}, result: OK')
         pass
 
-    def diving(self, data, args):
-        if args == 1:
+    def deal_control_cmd(self, cmd):
             self.weight_compensate = self.get_parameter('~weight_compensate').get_parameter_value().string_value
-            if data.light1 and data.light2 and data.up:
+            if cmd.light1 and cmd.light2 and cmd.up:
                 self.config('SKD') if self.controlling_flag_old != self.controlling_flag else None
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = True
                 self.config('DI-50000')
                 self.config('FS2H')
                 self.setpoint_depth -= 100
-            elif data.light1 and data.light2 and data.down:
+            elif cmd.light1 and cmd.light2 and cmd.down:
                 self.config('SKD') if self.controlling_flag_old != self.controlling_flag else None
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = True
                 self.config('DI50000')
                 self.config('FS1H')
                 self.setpoint_depth += 100
-            elif data.up and not data.down:
+            elif cmd.up and not cmd.down:
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = False
                 self.setpoint_depth -= 10
-            elif data.down and not data.up:
+            elif cmd.down and not cmd.up:
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = False
                 self.setpoint_depth += 10
@@ -134,17 +133,16 @@ class DepthControl(Node):
                 self.controlling_flag = False
             if self.setpoint_depth < 0:
                 self.setpoint_depth = 0
-        elif args == 2:
-            self.current_depth = data.depth_mm
-            if not self.controlling_flag and not self.controlling_flag_old:
-                self.pid.setpoint = self.setpoint_depth
-                output = int(self.pid(self.current_depth)) + self.weight_compensate
-                self.get_logger().info(f'setpoint_depth: {self.setpoint_depth}')
-                self.get_logger().info(f'current  depth: {data.depth_mm}')
-                # self.get_logger().info(f'current output: {output}')
-                self.config('FP' + str(output))
-        else:
-            pass
+
+    def keep_depth(self, msg):
+        self.current_depth = msg.depth_mm
+        if not self.controlling_flag and not self.controlling_flag_old:
+            self.pid.setpoint = self.setpoint_depth
+            output = int(self.pid(self.current_depth)) + self.weight_compensate
+            self.get_logger().info(f'setpoint_depth: {self.setpoint_depth}')
+            self.get_logger().info(f'current  depth: {msg.depth_mm}')
+            # self.get_logger().info(f'current output: {output}')
+            self.config('FP' + str(output))
 
 
 def main(arg=None):
