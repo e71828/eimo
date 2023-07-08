@@ -50,8 +50,8 @@ class I2cPropel(Node):
         self.pid.sample_time = 1 / self.frequency
         self.pid.output_limits = (-100, 100)
 
-        self.sub_control = self.create_subscription(Control, 'control', self.controlling, 1)
-        self.sub_angle = self.create_subscription(Angle, 'angle', self.controlling, 2)
+        self.sub_control = self.create_subscription(Control, 'control', self.deal_control_cmd)
+        self.sub_angle = self.create_subscription(Angle, 'angle', self.keep_yaw)
 
     def __del__(self):
         sleep(3)  # wait for other using
@@ -61,53 +61,53 @@ class I2cPropel(Node):
         self.sub_angle.destroy()
         self.gget_logger().info('Welcome Back to Stop Safely')
 
-    def controlling(self, data, args):
-        if args == 1:
-            if data.light1 and not data.up and not data.down:
-                self.light1_level = self.light1_level + 1 if self.light1_level < 8 else 0
-                self.pwm.set_pulse_width(6, self.light1_level*50 + 1100)
-            if data.light2 and not data.up and not data.down:
-                self.light2_level = self.light2_level + 1 if self.light2_level < 8 else 0
-                self.pwm.set_pulse_width(7, self.light2_level*50 + 1100)
+    def deal_control_cmd(self, cmd):
+        if cmd.light1 and not cmd.up and not cmd.down:
+            self.light1_level = self.light1_level + 1 if self.light1_level < 8 else 0
+            self.pwm.set_pulse_width(6, self.light1_level*50 + 1100)
+        if cmd.light2 and not cmd.up and not cmd.down:
+            self.light2_level = self.light2_level + 1 if self.light2_level < 8 else 0
+            self.pwm.set_pulse_width(7, self.light2_level*50 + 1100)
 
-            self.base_output = 0
-            if data.forward:
-                self.base_output = -data.gain
-                self.get_logger().info('withdraw')
-            elif data.backward:
-                self.base_output = data.gain
-                self.get_logger().info('forward')
-            elif data.turn_left:
-                self.setpoint_yaw -= 5
-                self.setpoint_yaw = pi_clip(self.setpoint_yaw)
-                self.get_logger().info('turn left')
-            elif data.turn_right:
-                self.setpoint_yaw += 5
-                self.setpoint_yaw = pi_clip(self.setpoint_yaw)
-                self.get_logger().info('turn right')
-        elif args == 2:
-            self.current_yaw = data.yaw
-            self.pid.setpoint = self.setpoint_yaw
-            output = self.pid(self.current_yaw)
-            self.get_logger().info(f'setpoint_yaw: {self.setpoint_yaw}')
-            self.get_logger().info(f'current  yaw: {self.current_yaw}')
-            self.get_logger().info(f'output: {output:.1f}')
-            self.get_logger().info(f'base_output: {self.base_output:.1f}')
-            if self.base_output > 0:
-                self.pwm.set_pulse_width(4, 1524  - output + self.base_output)
-                self.pwm.set_pulse_width(5, 1527  + output + self.base_output)
-            elif self.base_output < 0:
-                self.pwm.set_pulse_width(4, 1453  - output + self.base_output)
-                self.pwm.set_pulse_width(5, 1453  + output + self.base_output)
-            elif output > 2:
-                self.pwm.set_pulse_width(4, 1453  - output)
-                self.pwm.set_pulse_width(5, 1527  + output)
-            elif output < -2:
-                self.pwm.set_pulse_width(4, 1524  - output)
-                self.pwm.set_pulse_width(5, 1453  + output)
-            else:
-                self.pwm.set_pulse_width(4, 1500)
-                self.pwm.set_pulse_width(5, 1500)
+        self.base_output = 0
+        if cmd.forward:
+            self.base_output = -cmd.gain
+            self.get_logger().info('withdraw')
+        elif cmd.backward:
+            self.base_output = cmd.gain
+            self.get_logger().info('forward')
+        elif cmd.turn_left:
+            self.setpoint_yaw -= 5
+            self.setpoint_yaw = pi_clip(self.setpoint_yaw)
+            self.get_logger().info('turn left')
+        elif cmd.turn_right:
+            self.setpoint_yaw += 5
+            self.setpoint_yaw = pi_clip(self.setpoint_yaw)
+            self.get_logger().info('turn right')
+
+    def keep_yaw(self, msg):
+        self.current_yaw = msg.yaw
+        self.pid.setpoint = self.setpoint_yaw
+        output = self.pid(self.current_yaw)
+        self.get_logger().info(f'setpoint_yaw: {self.setpoint_yaw}')
+        self.get_logger().info(f'current  yaw: {self.current_yaw}')
+        self.get_logger().info(f'output: {output:.1f}')
+        self.get_logger().info(f'base_output: {self.base_output:.1f}')
+        if self.base_output > 0:
+            self.pwm.set_pulse_width(4, 1524  - output + self.base_output)
+            self.pwm.set_pulse_width(5, 1527  + output + self.base_output)
+        elif self.base_output < 0:
+            self.pwm.set_pulse_width(4, 1453  - output + self.base_output)
+            self.pwm.set_pulse_width(5, 1453  + output + self.base_output)
+        elif output > 2:
+            self.pwm.set_pulse_width(4, 1453  - output)
+            self.pwm.set_pulse_width(5, 1527  + output)
+        elif output < -2:
+            self.pwm.set_pulse_width(4, 1524  - output)
+            self.pwm.set_pulse_width(5, 1453  + output)
+        else:
+            self.pwm.set_pulse_width(4, 1500)
+            self.pwm.set_pulse_width(5, 1500)
 
 
 def main(arg=None):
