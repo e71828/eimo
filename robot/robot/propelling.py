@@ -112,9 +112,9 @@ class I2cPropel(Node):
 
 def main(arg=None):
     rclpy.init(args=arg)
-    depth_node = I2cPropel()
-    rclpy.spin(depth_node)
-    depth_node.destroy_node()
+    yaw_control_node = I2cPropel()
+    rclpy.spin(yaw_control_node)
+    yaw_control_node.destroy_node()
     rclpy.shutdown()
 
 if __name__ == "__main__":
