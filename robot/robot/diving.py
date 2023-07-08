@@ -26,32 +26,20 @@ class DepthControl(Node):
         self.cli = self.create_client(Scl, 'scl_passthrough')
         while not self.cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
-            
         self.config_QA = Scl.Request()
-        self.config_QA.request = 'DL1'
-        future = self.cli.call_async(self.req)
-        rclpy.spin_until_future_complete(self, future)
-        response = future.result()
-        config_echo = response.answer
+
+        config_echo = self.scl_config('DL1')
         if config_echo == '%\r':
             self.get_logger().info("Motor Define CW-limit and CCW-limit OK with DL1.")
-        self.config_QA.request = 'ME'
-        future = self.cli.call_async(self.req)
-        rclpy.spin_until_future_complete(self, future)
-        response = future.result()
-        config_echo = response.answer
+        config_echo = self.scl_config('ME')
         if config_echo == '%\r':
             self.get_logger().info("Motor enable OK with ME.")
 
-        self.config('DC2000')
-        self.config('DI400000')
-        self.config('FS1H')
+        self.scl_config('DC2000')
+        self.scl_config('DI400000')
+        self.scl_config('FS1H')
         sleep(3)
-        self.config_QA.request = 'IP'
-        future = self.cli.call_async(self.req)
-        rclpy.spin_until_future_complete(self, future)
-        response = future.result()
-        config_echo = response.answer
+        config_echo = self.scl_config('IP')
         if len(config_echo) > 2 and 'IP=' in config_echo:
             index = config_echo.index('IP=')
             self.cw_limit = int(config_echo[index + 3:index + 11], 16)
@@ -59,14 +47,10 @@ class DepthControl(Node):
                 self.cw_limit -= 1 << 32
             self.get_logger().info(f"cw_limit position: {self.cw_limit}")
 
-        self.config('DI-400000')
-        self.config('FS2H')
+        self.scl_config('DI-400000')
+        self.scl_config('FS2H')
         sleep(3)
-        self.config_QA.request = 'IP'
-        future = self.cli.call_async(self.req)
-        rclpy.spin_until_future_complete(self, future)
-        response = future.result()
-        config_echo = response.answer
+        config_echo = self.scl_config('IP')
         if len(config_echo) > 2 and 'IP=' in config_echo:
             index = config_echo.index('IP=')
             self.ccw_limit = int(config_echo[index + 3:index + 11], 16)
@@ -74,9 +58,9 @@ class DepthControl(Node):
                 self.ccw_limit -= 1 << 32
             self.get_logger().info(f"ccw_limit position: {self.ccw_limit}")
 
-        self.config('FP' + str(int(self.ccw_limit/2+self.cw_limit/2)))
+        self.scl_config('FP' + str(int(self.ccw_limit / 2 + self.cw_limit / 2)))
         sleep(2)
-        self.config('SP0')
+        self.scl_config('SP0')
         self.get_logger().info(f"reset middle position")
 
         self.setpoint_depth = self.get_parameter('init_depth').get_parameter_value().integer_value + 400
@@ -89,12 +73,12 @@ class DepthControl(Node):
         self.sub_depth = self.create_subscription(Depth, 'depth', self.keep_depth)
 
     def __del__(self):
-        self.config('FP0')
+        self.scl_config('FP0')
         self.sub_control.destroy()
         self.sub_depth.destroy()
         self.get_logger().info('Welcome Back to Middle Position')
 
-    def config(self, config_str):
+    def scl_config(self, config_str):
         self.config_QA.request = config_str
         future = self.cli.call_async(self.req)
         rclpy.spin_until_future_complete(self, future)
@@ -102,23 +86,23 @@ class DepthControl(Node):
         config_echo = response.answer
         if config_echo == '%\r':
             self.gget_logger().debug(f'Config with string: {config_str}, result: OK')
-        pass
+        return config_echo
 
     def deal_control_cmd(self, cmd):
             self.weight_compensate = self.get_parameter('~weight_compensate').get_parameter_value().string_value
             if cmd.light1 and cmd.light2 and cmd.up:
-                self.config('SKD') if self.controlling_flag_old != self.controlling_flag else None
+                self.scl_config('SKD') if self.controlling_flag_old != self.controlling_flag else None
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = True
-                self.config('DI-50000')
-                self.config('FS2H')
+                self.scl_config('DI-50000')
+                self.scl_config('FS2H')
                 self.setpoint_depth -= 100
             elif cmd.light1 and cmd.light2 and cmd.down:
-                self.config('SKD') if self.controlling_flag_old != self.controlling_flag else None
+                self.scl_config('SKD') if self.controlling_flag_old != self.controlling_flag else None
                 self.controlling_flag_old = self.controlling_flag
                 self.controlling_flag = True
-                self.config('DI50000')
-                self.config('FS1H')
+                self.scl_config('DI50000')
+                self.scl_config('FS1H')
                 self.setpoint_depth += 100
             elif cmd.up and not cmd.down:
                 self.controlling_flag_old = self.controlling_flag
@@ -142,7 +126,7 @@ class DepthControl(Node):
             self.get_logger().info(f'setpoint_depth: {self.setpoint_depth}')
             self.get_logger().info(f'current  depth: {msg.depth_mm}')
             # self.get_logger().info(f'current output: {output}')
-            self.config('FP' + str(output))
+            self.scl_config('FP' + str(output))
 
 
 def main(arg=None):
