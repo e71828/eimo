@@ -1,6 +1,6 @@
 #!/bin/python3
 
-""""request_voltage.py"""
+"""request_voltage.py"""
 
 import rclpy
 from eimo_msgs.srv import Scl
