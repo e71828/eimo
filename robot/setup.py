@@ -22,6 +22,10 @@ setup(
         'console_scripts': [
             'depth = robot.depth_ms5837:main',
             'angle = robot.angle_witsensor:main',
+            'pca = robot.propelling:main',
+            'voltage = robot.request_voltage:main',
+            'scl = robot.scl_passthrough:main',
+            'dive = robot.diving:main',
         ],
     },
 )
