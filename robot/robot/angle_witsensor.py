@@ -1,4 +1,4 @@
-# !/bin/python3
+#!/bin/python3
 from .witprotocol import PacketReader, WITProtocol, PacketID
 import serial
 import rclpy
