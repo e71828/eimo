@@ -38,23 +38,7 @@ def main(args=None):
 
     set_param = SetExternalParam()
     set_param.send_request()
-    while rclpy.ok():
-        rclpy.spin_once(set_param)
-        if set_param.future.done():
-            try:
-                response = set_param.future.result()
-                if response is not None:
-                    assert len(response.results) == 1
-                    res = [i.successful for i in response.results]
-                    assert all(res)
-                    set_param.get_logger().info(
-                        'Parameter changed successfully')
-            except Exception as e:
-                set_param.get_logger().info(
-                    'Service call failed %r' % (e,))
-            break
-
-
+    rclpy.spin_once(set_param)
 
     get_param = GetExternalParam()
     get_param.get_param()
@@ -72,7 +56,18 @@ def main(args=None):
         get_param.get_logger().info(
             'Service call failed %r' % (e,))
 
-
+    if set_param.future.done():
+        try:
+            response = set_param.future.result()
+            if response is not None:
+                assert len(response.results) == 1
+                res = [i.successful for i in response.results]
+                assert all(res)
+                set_param.get_logger().info(
+                    'Parameter changed successfully')
+        except Exception as e:
+            set_param.get_logger().info(
+                'Service call failed %r' % (e,))
 
     set_param.destroy_node()
     get_param.destroy_node()
