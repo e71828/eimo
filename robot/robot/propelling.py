@@ -44,16 +44,27 @@ class I2cPropel(Node):
 
         self.base_output = 0
 
-        cli = self.create_client(GetParameters, '/' + 'publish_angle' + '/get_parameters')
-        while not cli.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('service not available, waiting again...')
-        req = GetParameters.Request()
-        req.names = ['init_yaw', 'angle_frequency']
-        future = cli.call_async(req)
-        rclpy.spin_until_future_complete(self, future)
-        response = future.result()
+        class GetExternalParam(Node):
+            def __init__(self):
+                super().__init__('fetch_angle_parameter_node')
+                self.future = None
+                self.cli = self.create_client(GetParameters, '/' + 'publish_angle' + '/get_parameters')
+                while not self.cli.wait_for_service(timeout_sec=1.0):
+                    self.get_logger().info('service not available, waiting again...')
+                self.req = GetParameters.Request()
+
+            def get_param(self):
+                self.req.names = ['init_yaw', 'angle_frequency']
+                self.future = get_param.cli.call_async(self.req)
+        get_param = GetExternalParam()
+        get_param.get_param()
+
+        rclpy.spin_until_future_complete(get_param, get_param.future)
+        response = get_param.future.result()
         self.init_yaw = response.values[0].integer_value
         self.angle_frequency = response.values[1].integer_value
+        get_param.destroy_node()
+
         self.setpoint_yaw = self.init_yaw
 
         self.pid = PID(1 ,0.05, 0.2, setpoint=self.setpoint_yaw, error_map=pi_clip)
