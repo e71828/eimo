@@ -23,6 +23,7 @@ class DepthControl(Node):
 
         sleep(3)  # wait here for 3 seconds
 
+        # my_callback_group = rclpy.callback_groups.MutuallyExclusiveCallbackGroup()
         self.cli = self.create_client(Scl, 'scl_passthrough')
         while not self.cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
