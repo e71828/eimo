@@ -29,10 +29,10 @@ class DepthControl(Node):
             self.get_logger().info('service not available, waiting again...')
         self.config_QA = Scl.Request()
 
-        config_echo = self.scl_config('DL1')
+        config_echo = self.scl_request('DL1')
         if config_echo == '%\r':
             self.get_logger().info("Motor Define CW-limit and CCW-limit OK with DL1.")
-        config_echo = self.scl_config('ME')
+        config_echo = self.scl_request('ME')
         if config_echo == '%\r':
             self.get_logger().info("Motor enable OK with ME.")
 
@@ -40,7 +40,7 @@ class DepthControl(Node):
         self.scl_config('DI400000')
         self.scl_config('FS1H')
         sleep(3)
-        config_echo = self.scl_config('IP')
+        config_echo = self.scl_request('IP')
         if len(config_echo) > 2 and 'IP=' in config_echo:
             index = config_echo.index('IP=')
             self.cw_limit = int(config_echo[index + 3:index + 11], 16)
@@ -51,7 +51,7 @@ class DepthControl(Node):
         self.scl_config('DI-400000')
         self.scl_config('FS2H')
         sleep(3)
-        config_echo = self.scl_config('IP')
+        config_echo = self.scl_request('IP')
         if len(config_echo) > 2 and 'IP=' in config_echo:
             index = config_echo.index('IP=')
             self.ccw_limit = int(config_echo[index + 3:index + 11], 16)
@@ -80,6 +80,11 @@ class DepthControl(Node):
         self.get_logger().info('Welcome Back to Middle Position')
 
     def scl_config(self, config_str):
+        self.config_QA.request = config_str
+        self.cli.call_async(self.req)
+        rclpy.spin_once(self)
+
+    def scl_request(self, config_str):
         self.config_QA.request = config_str
         future = self.cli.call_async(self.req)
         rclpy.spin_until_future_complete(self, future)
