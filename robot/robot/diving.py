@@ -8,6 +8,8 @@ from eimo_msgs.srv import Scl
 from time import sleep
 from eimo_msgs.msg import Control, Depth
 from simple_pid import PID
+from rcl_interfaces.srv import GetParameters
+
 
 class DepthControl(Node):
     def __init__(self):
@@ -16,7 +18,6 @@ class DepthControl(Node):
         self.controlling_flag = False
         self.controlling_flag_old = False
         self.declare_parameter('~weight_compensate', 10000)
-        self.declare_parameter('init_depth', 10000)
 
         self.weight_compensate = self.get_parameter('~weight_compensate').get_parameter_value().string_value
         self.base_output = 0
@@ -64,10 +65,21 @@ class DepthControl(Node):
         self.scl_config('SP0')
         self.get_logger().info(f"reset middle position")
 
-        self.setpoint_depth = self.get_parameter('init_depth').get_parameter_value().integer_value + 400
+        cli = self.create_client(GetParameters, '/' + 'publish_depth' + '/get_parameters')
+        while not cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
+        req = GetParameters.Request()
+        req.names = ['init_depth', 'depth_frequency']
+        future = cli.call_async(req)
+        rclpy.spin_until_future_complete(self, future)
+        response = future.result()
+        self.init_depth = response.values[0].integer_value
+        self.depth_frequency = response.values[1].integer_value
+
+        self.setpoint_depth = self.init_depth + 400
 
         self.pid = PID(300, 1, 200, setpoint=self.setpoint_depth)
-        self.pid.sample_time = 1 / self.get_parameter('depth_frequency').get_parameter_value().integer_value
+        self.pid.sample_time = 1 / self.depth_frequency
         self.pid.output_limits = (-180000, 180000)
 
         self.sub_control = self.create_subscription(Control, 'control', self.deal_control_cmd)

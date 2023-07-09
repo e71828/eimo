@@ -6,6 +6,8 @@ import pigpio
 from time import sleep
 from eimo_msgs.msg import Control, Angle
 from simple_pid import PID
+from rcl_interfaces.srv import GetParameters
+
 
 
 def pi_clip(angle):
@@ -25,8 +27,6 @@ class I2cPropel(Node):
         if not self.pi.connected:
             return
         self.declare_parameter('~i2c_port', '/dev/i2c-3')
-        self.declare_parameter('init_yaw', 0)
-        self.declare_parameter('angle_frequency', 10)
 
         self.i2c_port = self.get_parameter('~i2c_port').get_parameter_value().string_value
         self.pwm = PWM(self.pi, bus=int(self.i2c_port[-1]))  # defaults to bus 3, address 0x40
@@ -41,13 +41,23 @@ class I2cPropel(Node):
         self.current_yaw = .0
         self.current_yaw_v = None
         self.current_yaw_a = None
-        self.setpoint_yaw = self.get_parameter('init_yaw').get_parameter_value().integer_value
 
         self.base_output = 0
 
+        cli = self.create_client(GetParameters, '/' + 'publish_angle' + '/get_parameters')
+        while not cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
+        req = GetParameters.Request()
+        req.names = ['init_yaw', 'angle_frequency']
+        future = cli.call_async(req)
+        rclpy.spin_until_future_complete(self, future)
+        response = future.result()
+        self.init_yaw = response.values[0].integer_value
+        self.angle_frequency = response.values[1].integer_value
+        self.setpoint_yaw = self.init_yaw
+
         self.pid = PID(1 ,0.05, 0.2, setpoint=self.setpoint_yaw, error_map=pi_clip)
-        self.frequency = self.get_parameter('depth_frequency').get_parameter_value().integer_value
-        self.pid.sample_time = 1 / self.frequency
+        self.pid.sample_time = 1 / self.angle_frequency
         self.pid.output_limits = (-100, 100)
 
         self.sub_control = self.create_subscription(Control, 'control', self.deal_control_cmd)
