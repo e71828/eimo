@@ -12,8 +12,8 @@
 <!--  <depend>ms5837</depend>-->
 <!--  <depend>pigpio</depend>-->
   <depend>python3-serial</depend>
-  <depend>ros2launch</depend>
   <depend>rclpy</depend>
+  <exec_depend>ros2launch</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
