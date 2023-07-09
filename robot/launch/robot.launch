@@ -1,0 +1,36 @@
+<launch>
+    <arg name="serial_port" default="/dev/ttyAMA0"/>
+    <node pkg="robot" exec="scl">
+        <param name="~serial_port" value="$(var serial_port)"/>
+    </node>
+
+    <node pkg="robot" exec="depth">
+        <param name="depth_frequency" exec='int' value="1"/>
+        <param name="init_depth" exec='int' value="1039"/>
+        <param name="~density" exec='int' value="897"/>
+    </node>
+
+    <node pkg="robot" exec="angle">
+        <param name="angle_frequency" exec='int' value="10"/>
+    </node>
+
+    <node pkg="robot" exec="pca">
+        <group>
+            <push_ros_namespace namespace="angle_gains"/>
+            <param name="p" value="1" />
+            <param name="i" value="0.05" />
+            <param name="d" value="0.2" />
+        </group>
+    </node>
+
+    <node pkg="robot" exec="dive">
+        <param name="init_yaw" exec='int' value="0"/>
+        <param name="~weight_compensate" exec='int' value="10000"/>
+        <group>
+            <push_ros_namespace namespace="depth_gains"/>
+            <param name="p" value="300" />
+            <param name="i" value="1" />
+            <param name="d" value="200" />
+        </group>
+    </node>
+</launch>

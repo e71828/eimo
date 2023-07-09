@@ -13,7 +13,7 @@ def generate_launch_description():
         Node(
             package='robot',
             executable='scl',
-            parameters=[{"serial_port": LaunchConfiguration("serial_port")}]
+            parameters=[{"~serial_port": LaunchConfiguration("serial_port")}]
         ),
         Node(
             package='robot',
