@@ -23,9 +23,9 @@ class DepthControl(Node):
 
         sleep(3)  # wait here for 3 seconds
 
-        # my_callback_group = rclpy.callback_groups.MutuallyExclusiveCallbackGroup()
-        self.cli = self.create_client(Scl, 'scl_passthrough')
-        while not self.cli.wait_for_service(timeout_sec=1.0):
+        my_callback_group = rclpy.callback_groups.MutuallyExclusiveCallbackGroup()
+        self.client_scl = self.create_client(Scl, 'scl_passthrough', callback_group=my_callback_group)
+        while not self.client_scl.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
         self.config_QA = Scl.Request()
 
@@ -77,16 +77,17 @@ class DepthControl(Node):
         self.scl_config('FP0')
         self.sub_control.destroy()
         self.sub_depth.destroy()
+        self.client_scl.destroy()
         self.get_logger().info('Welcome Back to Middle Position')
 
     def scl_config(self, config_str):
         self.config_QA.request = config_str
-        self.cli.call_async(self.req)
+        self.client_scl.call_async(self.req)
         rclpy.spin_once(self)
 
     def scl_request(self, config_str):
         self.config_QA.request = config_str
-        future = self.cli.call_async(self.req)
+        future = self.client_scl.call_async(self.req)
         rclpy.spin_until_future_complete(self, future)
         response = future.result()
         config_echo = response.answer
