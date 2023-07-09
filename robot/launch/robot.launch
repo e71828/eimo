@@ -5,13 +5,13 @@
     </node>
 
     <node pkg="robot" exec="depth">
-        <param name="depth_frequency" exec='int' value="1"/>
-        <param name="init_depth" exec='int' value="1039"/>
-        <param name="~density" exec='int' value="897"/>
+        <param name="depth_frequency" value="1"/>
+        <param name="init_depth" value="1039"/>
+        <param name="~density" value="897"/>
     </node>
 
     <node pkg="robot" exec="angle">
-        <param name="angle_frequency" exec='int' value="10"/>
+        <param name="angle_frequency" value="10"/>
     </node>
 
     <node pkg="robot" exec="pca">
@@ -24,8 +24,8 @@
     </node>
 
     <node pkg="robot" exec="dive">
-        <param name="init_yaw" exec='int' value="0"/>
-        <param name="~weight_compensate" exec='int' value="10000"/>
+        <param name="init_yaw" value="0"/>
+        <param name="~weight_compensate" value="10000"/>
         <group>
             <push_ros_namespace namespace="depth_gains"/>
             <param name="p" value="300" />
