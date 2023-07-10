@@ -37,12 +37,12 @@ class DepthControl(Node):
 
             def config(self, config_str):
                 self.config_QA.request = config_str
-                self.client_scl.call_async(self.req)
+                self.client_scl.call_async(self.config_QA)
                 rclpy.spin_once(self)
 
             def request(self, config_str):
                 self.config_QA.request = config_str
-                self.future = self.client_scl.call_async(self.req)
+                self.future = self.client_scl.call_async(self.config_QA)
                 rclpy.spin_until_future_complete(self, self.future)
                 self.response = self.future.result()
                 config_echo = self.response.answer

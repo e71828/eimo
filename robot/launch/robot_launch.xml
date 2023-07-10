@@ -15,22 +15,16 @@
     </node>
 
     <node pkg="robot" exec="pca">
-        <group>
-            <push_ros_namespace namespace="angle_gains"/>
-            <param name="p" value="1" />
-            <param name="i" value="0.05" />
-            <param name="d" value="0.2" />
-        </group>
+        <param name="~p" value="1" />
+        <param name="~i" value="0.05" />
+        <param name="~d" value="0.2" />
     </node>
 
     <node pkg="robot" exec="dive">
         <param name="init_yaw" value="0"/>
         <param name="~weight_compensate" value="10000"/>
-        <group>
-            <push_ros_namespace namespace="depth_gains"/>
-            <param name="p" value="300" />
-            <param name="i" value="1" />
-            <param name="d" value="200" />
-        </group>
+        <param name="~p" value="300" />
+        <param name="~i" value="1" />
+        <param name="~d" value="200" />
     </node>
 </launch>
