@@ -59,24 +59,6 @@ WantedBy=multi-user.target
 ```
 
 ```bash
-#cat /etc/systemd/system/eimo.service
-[Unit]
-Description=start eimo_remote
-After=remote-fs.target
-After=syslog.target
-After=network.target
-After=systemd-user-sessions.service
-After=pigpiod.service
-[Service]
-Type=forking
-User=ubuntu
-UMask=007
-ExecStart=/home/ubuntu/ros_autoRun.sh
-[Install]
-WantedBy=multi-user.target
-```
-
-```bash
 # cat /etc/systemd/system/camera.service
 [Unit]
 Description=start gstreamer
