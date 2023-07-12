@@ -76,14 +76,8 @@ class UpdateDataWorker(QThread):
             self.signals.signal_yaw.emit(msg.yaw)
 
 
-    def __del__(self):
+    def shutdown(self):
         self.sub_control.unregister()
         self.sub_angle.unregister()
         self.sub_depth.unregister()
         rospy.signal_shutdown('GUI shutdown')
-
-    def pause(self) -> None:
-        pass
-
-    def unpause(self) -> None:
-        pass
