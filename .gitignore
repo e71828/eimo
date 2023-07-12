@@ -24,6 +24,7 @@ var/
 *.egg
 *.bak
 .vscode/
+.idea/
 
 
 # PyInstaller
