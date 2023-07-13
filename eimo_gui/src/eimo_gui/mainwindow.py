@@ -24,8 +24,8 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
 
         # rtsp://<Username>:<Password>@<IP Address>:<Port>/cam/realmonitor?channel=1&subtype=0
-        self.url_1 = "/usb_cam_0/image_raw/compressed"
-        self.url_2 = "/usb_cam_1/image_raw/compressed"
+        self.url_1 = "/usb_cam_1/image_raw/compressed"
+        self.url_2 = "/usb_cam_0/image_raw/compressed"
 
         # Dictionary to keep the state of a camera. The camera state will be: Normal or Maximized.
         self.list_of_cameras_state = {}
