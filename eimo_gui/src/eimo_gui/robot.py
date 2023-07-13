@@ -41,8 +41,8 @@ class UpdateDataWorker(QThread):
         rospy.on_shutdown(self.release)
 
     def run(self):
-        self.setpoint_depth = rospy.get_param('init_depth')
-        self.setpoint_yaw = rospy.get_param('init_yaw')
+        self.setpoint_depth = rospy.get_param('init_depth', default=0)
+        self.setpoint_yaw = rospy.get_param('init_yaw', default=0)
         self.signals.signal_init_depth.emit(self.setpoint_depth)
         self.signals.signal_init_yaw.emit(self.setpoint_yaw)
         self.setpoint_depth += 400
