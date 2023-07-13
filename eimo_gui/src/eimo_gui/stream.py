@@ -1,56 +1,42 @@
 #!/bin/env python3
 # This Python file uses the following encoding: utf-8
-import cv2
+import rospy
+from sensor_msgs.msg import Image
+from sensor_msgs.msg import CompressedImage
 
-from PySide6.QtGui import QImage
-from PySide6.QtCore import QThread, Signal, Qt
+from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtCore import QThread, Signal
+
 
 class CaptureIpCameraFramesWorker(QThread):
     # Signal emitted when a new image or a new frame is ready.
     ImageUpdated = Signal(QImage)
 
-    def __init__(self, url) -> None:
-        super(CaptureIpCameraFramesWorker, self).__init__()
-        # Declare and initialize instance variables.
-        self.shape = None
-        self.channels = None
-        self.width = None
-        self.bytes_per_line = None
-        self.height = None
+    def __init__(self, image_topic) -> None:
+        # Instantiate CvBridge
         self.capture = None
-        self.url = url
-        self.fps = 0
-        self.capture = cv2.VideoCapture(self.url, cv2.CAP_FFMPEG)
+        self.image_topic = image_topic
+        super().__init__()
+        self.frame_fmt = rospy.get_param(
+            '~filename_format', 'frame_0_%04i.jpg')
+        rospy.on_shutdown(self.release)
+
 
     def run(self) -> None:
-        # Capture video from a network stream.
-        # Get default video FPS.
-        self.fps = self.capture.get(cv2.CAP_PROP_FPS)
-        print(self.fps)
-        # If video capturing has been initialized already.q
-        # While the thread is active.
-        while self.capture.isOpened():
-            # Grabs, decodes and returns the next video frame.
-            ret, frame = self.capture.read()
-            # Get the frame height, width and channels.
-            if self.shape is None:
-                # Calculate the number of bytes per line.
-                self.shape = frame.shape
-                self.height, self.width, self.channels = frame.shape
-                self.bytes_per_line = self.width * self.channels
-            if ret:
-                # Convert image from BGR (cv2 default color format) to RGB (Qt default color format).
-                cv_rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                # Convert the image to Qt format.
-                qt_rgb_image = QImage(cv_rgb_image.data, self.width, self.height, self.bytes_per_line, QImage.Format_RGB888)
-                # Scale the image.
-                qt_rgb_image_scaled = qt_rgb_image.scaled(640, 360, Qt.KeepAspectRatio)  # 360p
-                # qt_rgb_image_scaled = qt_rgb_image.scaled(1280, 720, Qt.KeepAspectRatio)  # 720p
-                # qt_rgb_image_scaled = qt_rgb_image.scaled(1920, 1080, Qt.KeepAspectRatio) # 1080p
-                # Emit this signal to notify that a new image or frame is available.
-                self.ImageUpdated.emit(qt_rgb_image_scaled)
-            else:
-                break
+        # Set up your subscriber and define its callback
+        self.capture = rospy.Subscriber(self.image_topic, CompressedImage, self.image_callback)
+        # Spin until ctrl + c
+        rospy.spin()
 
-    def open(self):
-        self.capture.open(self.url, cv2.CAP_FFMPEG)
+
+    def image_callback(self, msg):
+        # Convert the image to Qt format.
+        # qt_rgb_image = QImage(msg.data, msg.width, msg.height, msg.step, QImage.Format_RGB888)
+        qt_rgb_image = QImage.fromData(msg.data)
+        # Emit this signal to notify that a new image or frame is available.
+        self.ImageUpdated.emit(qt_rgb_image)
+
+    def release(self):
+        if self.capture is not None:
+            self.capture.unregister()
+        rospy.signal_shutdown('GUI shutdown')

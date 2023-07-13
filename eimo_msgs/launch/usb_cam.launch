@@ -1,6 +1,17 @@
 <launch>
-    <param name="camera_transport_suffix" value="true" />
-    <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
+    <param name="camera_transport_suffix" value="image_raw" />
+    <node name="usb_cam_0" pkg="usb_cam" type="usb_cam_node" output="screen" >
         <rosparam command="load" file="$(find eimo_msgs)/config/usb_cam.yml"/>
+<!--         <param name="video_device" value="/dev/video2" /> -->
+<!--         <param name="color_format" value="yuv420p" /> -->
+<!--         <param name="pixel_format" value="h264" /> -->
+
+    </node>
+    <node name="usb_cam_1" pkg="usb_cam" type="usb_cam_node" output="screen" >
+        <rosparam command="load" file="$(find eimo_msgs)/config/usb_cam.yml"/>
+        <param name="video_device" value="/dev/video4" />
+<!--         <param name="video_device" value="/dev/video6" /> -->
+<!--         <param name="color_format" value="yuv420p" /> -->
+<!--         <param name="pixel_format" value="h264" /> -->
     </node>
 </launch>

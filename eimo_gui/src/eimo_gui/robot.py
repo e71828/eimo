@@ -32,17 +32,17 @@ class Communicate(QObject):
 class UpdateDataWorker(QThread):
     def __init__(self):
         super(UpdateDataWorker, self).__init__()
-        rospy.init_node('GUI', anonymous=True)
         self.signals = Communicate()
         self.setpoint_depth = None
         self.setpoint_yaw = None
         self.sub_angle = None
         self.sub_depth = None
         self.sub_control = None
+        rospy.on_shutdown(self.release)
 
     def run(self):
-        self.setpoint_depth = rospy.get_param('init_depth', default=0)
-        self.setpoint_yaw = rospy.get_param('init_yaw', default=0)
+        self.setpoint_depth = rospy.get_param('init_depth')
+        self.setpoint_yaw = rospy.get_param('init_yaw')
         self.signals.signal_init_depth.emit(self.setpoint_depth)
         self.signals.signal_init_yaw.emit(self.setpoint_yaw)
         self.setpoint_depth += 400
@@ -75,9 +75,10 @@ class UpdateDataWorker(QThread):
         elif arg == 3:
             self.signals.signal_yaw.emit(msg.yaw)
 
-
-    def shutdown(self):
-        self.sub_control.unregister()
-        self.sub_angle.unregister()
-        self.sub_depth.unregister()
-        rospy.signal_shutdown('GUI shutdown')
+    def release(self):
+        if self.sub_control is not None:
+            self.sub_control.unregister()
+        if self.sub_depth is not None:
+            self.sub_depth.unregister()
+        if self.sub_angle is not None:
+            self.sub_angle.unregister()

@@ -1,5 +1,6 @@
 #!/bin/env python3
 import sys
+import rospy
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, \
     QLabel, QGridLayout, QScrollArea, QSizePolicy
 from PySide6.QtGui import QPixmap, QIcon, QImage, QPalette
@@ -15,6 +16,7 @@ from .robot import UpdateDataWorker, check_ROS_master
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
+        rospy.init_node('eimo_gui', anonymous=True)
         self.update_data_worker = None
         self.CaptureIpCameraFramesWorker_1 = None
         self.CaptureIpCameraFramesWorker_2 = None
@@ -22,8 +24,8 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
 
         # rtsp://<Username>:<Password>@<IP Address>:<Port>/cam/realmonitor?channel=1&subtype=0
-        self.url_1 = "rtsp://192.168.31.16:8556/unicast"
-        self.url_2 = "rtsp://192.168.31.16:8555/unicast"
+        self.url_1 = "/usb_cam_0/image_raw/compressed"
+        self.url_2 = "/usb_cam_1/image_raw/compressed"
 
         # Dictionary to keep the state of a camera. The camera state will be: Normal or Maximized.
         self.list_of_cameras_state = {}
@@ -54,18 +56,7 @@ class MainWindow(QMainWindow):
         self.ui.QScrollArea_2.setWidgetResizable(True)
         self.ui.QScrollArea_2.setWidget(self.camera_2)
 
-        # Start the thread CaptureIpCameraFramesWorker.
-        self.ui.pB_start_cam.clicked.connect(self.start_video_later)
-        # self.start_video_later()
 
-        # Start the thread update_data_worker.
-        self.ui.pB_Get_ROS.clicked.connect(self.start_data_worker_later)
-        self.ui.pB_Get_ROS.setEnabled(False)
-        if check_ROS_master():
-            self.ui.pB_Get_ROS.setEnabled(True)
-
-
-    def start_video_later(self):
         # Create an instance of CaptureIpCameraFramesWorker.
         self.CaptureIpCameraFramesWorker_1 = CaptureIpCameraFramesWorker(self.url_1)
         self.CaptureIpCameraFramesWorker_1.ImageUpdated.connect(lambda image: self.ShowCamera1(image))
@@ -73,14 +64,16 @@ class MainWindow(QMainWindow):
         # Create an instance of CaptureIpCameraFramesWorker.
         self.CaptureIpCameraFramesWorker_2 = CaptureIpCameraFramesWorker(self.url_2)
         self.CaptureIpCameraFramesWorker_2.ImageUpdated.connect(lambda image: self.ShowCamera2(image))
+        self.ui.pB_start_cam.clicked.connect(self.start_video_later)
+        self.ui.pB_rs_cam1.setEnabled(False)
+        self.ui.pB_rs_cam2.setEnabled(False)
 
-        self.ui.pB_stop_cam.clicked.connect(self.stop_cam)
-        self.ui.pB_rs_cam1.clicked.connect(self.restart_cam(1))
-        self.ui.pB_rs_cam2.clicked.connect(self.restart_cam(2))
-        self.ui.pB_start_cam.setEnabled(False)
+        # Start the thread update_data_worker.
+        self.ui.pB_Get_ROS.clicked.connect(self.start_data_worker_later)
+        self.ui.pB_Get_ROS.setEnabled(False)
+        if check_ROS_master():
+            self.ui.pB_Get_ROS.setEnabled(True)
 
-
-    def start_data_worker_later(self):
         # Create an instance of DataProcessingWorker.
         self.update_data_worker = UpdateDataWorker()
         self.update_data_worker.signals.signal_init_depth.connect(lambda data: self.update_init_depth(data))
@@ -89,25 +82,35 @@ class MainWindow(QMainWindow):
         self.update_data_worker.signals.signal_depth.connect(lambda data: self.update_depth(data))
         self.update_data_worker.signals.signal_setpoint_depth.connect(lambda data: self.update_setpoint_depth(data))
         self.update_data_worker.signals.signal_setpoint_yaw.connect(lambda data: self.update_setpoint_yaw(data))
+
+
+    def start_video_later(self):
+        self.CaptureIpCameraFramesWorker_1.start()
+        self.CaptureIpCameraFramesWorker_2.start()
+        self.ui.pB_stop_cam.clicked.connect(self.stop_cam)
+        self.ui.pB_start_cam.setEnabled(False)
+
+    def start_data_worker_later(self):
         self.ui.pB_Get_ROS.setEnabled(False)
+        self.update_data_worker.start()
 
     @Slot()
-    def update_init_depth(self, data: float) -> None:
+    def update_init_depth(self, data: int) -> None:
         self.ui.init_depth.setText(str(data))
     @Slot()
-    def update_init_yaw(self, data: float) -> None:
+    def update_init_yaw(self, data: int) -> None:
         self.ui.init_angle.setText(str(data))
     @Slot()
-    def update_yaw(self, data: float) -> None:
+    def update_yaw(self, data: int) -> None:
         self.ui.value_angle.setText(str(data))
     @Slot()
-    def update_depth(self, data: float) -> None:
+    def update_depth(self, data: int) -> None:
         self.ui.value_depth.setText(str(data))
     @Slot()
-    def update_setpoint_depth(self, data: float) -> None:
+    def update_setpoint_depth(self, data: int) -> None:
         self.ui.change_depth.setText(str(data))
     @Slot()
-    def update_setpoint_yaw(self, data: float) -> None:
+    def update_setpoint_yaw(self, data: int) -> None:
         self.ui.change_angle.setText(str(data))
 
     def ShowCamera1(self, frame: QImage) -> None:
@@ -155,7 +158,7 @@ class MainWindow(QMainWindow):
 
     # Overwrite method closeEvent from class QMainWindow.
     def closeEvent(self, event) -> None:
-        self.stop_cam()
+        rospy.signal_shutdown('GUI shutdown')
         if self.CaptureIpCameraFramesWorker_1 is not None:
             self.CaptureIpCameraFramesWorker_2.quit()
             self.CaptureIpCameraFramesWorker_2.wait()
@@ -171,21 +174,11 @@ class MainWindow(QMainWindow):
     def stop_cam(self):
         # If thread getIpCameraFrameWorker_1 is running, then release it.
         if self.CaptureIpCameraFramesWorker_1.isRunning():
-            self.CaptureIpCameraFramesWorker_1.capture.release()
+            self.CaptureIpCameraFramesWorker_1.release()
         # If thread getIpCameraFrameWorker_2 is running, then release it.
         if self.CaptureIpCameraFramesWorker_2.isRunning():
-            self.CaptureIpCameraFramesWorker_2.capture.release()
+            self.CaptureIpCameraFramesWorker_2.release()
         self.ui.pB_start_cam.setEnabled(True)
-
-    def restart_cam(self, cam):
-        if cam == 2:
-            if self.CaptureIpCameraFramesWorker_2.isRunning():
-                self.CaptureIpCameraFramesWorker_2.capture.release()
-            self.CaptureIpCameraFramesWorker_2.open()
-        elif cam == 1:
-            if self.CaptureIpCameraFramesWorker_1.isRunning():
-                self.CaptureIpCameraFramesWorker_1.capture.release()
-            self.CaptureIpCameraFramesWorker_1.open()
 
 
 

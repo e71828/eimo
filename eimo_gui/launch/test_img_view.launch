@@ -1,9 +1,0 @@
-<launch>
-    <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
-        <remap from="image" to="/usb_cam/image_raw"/>
-        <param name="autosize" value="true" />
-        <param name="image_transport" value="compressed" />
-        <param name="filename_format" value="frame%04i.jpg" />
-        <param name="window_name " value="down_camera" />
-    </node>
-</launch>

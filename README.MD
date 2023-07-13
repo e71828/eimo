@@ -59,23 +59,6 @@ WantedBy=multi-user.target
 ```
 
 ```bash
-# cat /etc/systemd/system/camera.service
-[Unit]
-Description=start gstreamer
-After=remote-fs.target
-After=syslog.target
-After=network.target
-After=systemd-user-sessions.service
-[Service]
-Type=simple
-User=root
-UMask=007
-ExecStart=/home/ubuntu/camera.sh
-[Install]
-WantedBy=multi-user.target
-```
-
-```bash
 # cat /etc/systemd/system/roscore.service
 [Unit]
 Description=start roscore

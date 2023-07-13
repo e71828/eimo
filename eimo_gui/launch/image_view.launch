@@ -1,0 +1,20 @@
+<launch>
+    <node name="image_view_0" pkg="image_view" type="image_view" respawn="false" output="screen">
+        <remap from="image" to="/usb_cam_0/image_raw"/>
+        <param name="autosize" value="true" />
+        <param name="image_transport" value="compressed" />
+        <param name="filename_format" value="frame_0_%04i.jpg" />
+        <param name="window_name " value="down_camera" />
+    </node>
+    <node name="image_view_1" pkg="image_view" type="image_view" respawn="false" output="screen">
+        <remap from="image" to="/usb_cam_1/image_raw"/>
+        <param name="autosize" value="true" />
+        <param name="image_transport" value="compressed" />
+        <param name="filename_format" value="frame_1_%04i.jpg" />
+        <param name="window_name " value="up_camera" />
+    </node>
+
+    <arg name="start_camera" default="true" />
+    <machine name="YJ-robot" address="192.168.31.16" env-loader="/home/ubuntu/eimo.sh" user="ubuntu" timeout="100" default="true"/>
+    <include if="$(arg start_camera)" file="$(find eimo_msgs)/launch/usb_cam.launch"/>
+</launch>
