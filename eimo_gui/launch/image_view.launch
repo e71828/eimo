@@ -14,7 +14,7 @@
         <param name="window_name " value="up_camera" />
     </node>
 
-    <arg name="start_camera" default="true" />
+    <arg name="start_camera" default="false" />
     <machine name="YJ-robot" address="192.168.31.16" env-loader="/home/ubuntu/eimo.sh" user="ubuntu" timeout="100" default="true"/>
     <include if="$(arg start_camera)" file="$(find eimo_msgs)/launch/usb_cam.launch"/>
 </launch>
