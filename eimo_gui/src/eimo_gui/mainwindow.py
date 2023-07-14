@@ -1,13 +1,18 @@
 #!/bin/env python3
+import os
 import sys
+from datetime import datetime
+from os.path import expanduser
+
 import rospy
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, \
-    QLabel, QGridLayout, QScrollArea, QSizePolicy
+    QLabel, QGridLayout, QScrollArea, QSizePolicy, QVBoxLayout
 from PySide6.QtGui import QPixmap, QIcon, QImage, QPalette
 from PySide6.QtCore import QThread, Signal, Slot, Qt, QEvent, QObject
 from .ui_form import Ui_MainWindow
 from .stream import CaptureIpCameraFramesWorker
 from .robot import UpdateDataWorker, check_ROS_master
+from .battery_level import Battery
 
 # Important:
 # You need to run the following command to generate the ui_form.py file
@@ -16,6 +21,15 @@ from .robot import UpdateDataWorker, check_ROS_master
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.seq1, self.seq0 = 0, 0
+        self.home = expanduser("~")
+        self.frame_fmt_1 = 'frame_1_%04i.jpg'
+        self.frame_fmt_0 = 'frame_0_%04i.jpg'
+
+        self.date_str = datetime.now().strftime("%Y-%m-%d/")
+        self.dir = self.home + "/.ros/" + self.date_str
+        if not os.path.exists(self.dir):
+            os.mkdir(self.dir)
         rospy.init_node('eimo_gui', anonymous=True)
         self.update_data_worker = None
         self.CaptureIpCameraFramesWorker_1 = None
@@ -65,14 +79,18 @@ class MainWindow(QMainWindow):
         self.CaptureIpCameraFramesWorker_2 = CaptureIpCameraFramesWorker(self.url_2)
         self.CaptureIpCameraFramesWorker_2.ImageUpdated.connect(lambda image: self.ShowCamera2(image))
         self.ui.pB_start_cam.clicked.connect(self.start_video_later)
-        self.ui.pB_rs_cam1.setEnabled(False)
-        self.ui.pB_rs_cam2.setEnabled(False)
 
         # Start the thread update_data_worker.
         self.ui.pB_Get_ROS.clicked.connect(self.start_data_worker_later)
-        self.ui.pB_Get_ROS.setEnabled(False)
-        if check_ROS_master():
-            self.ui.pB_Get_ROS.setEnabled(True)
+        if not check_ROS_master():
+            self.ui.pB_Get_ROS.setEnabled(False)
+            self.ui.pB_start_cam.setEnabled(False)
+            self.ui.pB_stop_cam.setEnabled(False)
+        self.ui.pB_Get_pic1.setEnabled(False)
+        self.ui.pB_Get_pic2.setEnabled(False)
+        self.ui.pB_stop_cam.clicked.connect(self.stop_cam)
+        self.ui.pB_Get_pic1.clicked.connect(self.save_picture_1)
+        self.ui.pB_Get_pic2.clicked.connect(self.save_picture_2)
 
         # Create an instance of DataProcessingWorker.
         self.update_data_worker = UpdateDataWorker()
@@ -82,17 +100,35 @@ class MainWindow(QMainWindow):
         self.update_data_worker.signals.signal_depth.connect(lambda data: self.update_depth(data))
         self.update_data_worker.signals.signal_setpoint_depth.connect(lambda data: self.update_setpoint_depth(data))
         self.update_data_worker.signals.signal_setpoint_yaw.connect(lambda data: self.update_setpoint_yaw(data))
+        self.update_data_worker.signals.signal_battery_level.connect(lambda data: self.battery.setValue(data))
+        self.update_data_worker.signals.signal_battery_level.connect(lambda data: self.battery_change_color(data))
+
+        # Add battery Percentage
+        self.layout = QVBoxLayout(self.ui.frame)
+        self.battery = Battery()
+        self.layout.addWidget(self.battery)
 
 
     def start_video_later(self):
-        self.CaptureIpCameraFramesWorker_1.start()
-        self.CaptureIpCameraFramesWorker_2.start()
-        self.ui.pB_stop_cam.clicked.connect(self.stop_cam)
+        if not self.CaptureIpCameraFramesWorker_1.isRunning():
+            self.CaptureIpCameraFramesWorker_1.start()
+            self.CaptureIpCameraFramesWorker_2.start()
+        else:
+            self.CaptureIpCameraFramesWorker_1.pause = False
+            self.CaptureIpCameraFramesWorker_2.pause = False
+
         self.ui.pB_start_cam.setEnabled(False)
+        self.ui.pB_Get_pic1.setEnabled(True)
+        self.ui.pB_Get_pic2.setEnabled(True)
+
+
 
     def start_data_worker_later(self):
         self.ui.pB_Get_ROS.setEnabled(False)
         self.update_data_worker.start()
+        self.ui.frame.setStyleSheet(
+            "background-color: rgb(0, 112, 219);"
+        )
 
     @Slot()
     def update_init_depth(self, data: int) -> None:
@@ -171,14 +207,42 @@ class MainWindow(QMainWindow):
         # Accept the event
         event.accept()
 
+    @Slot()
     def stop_cam(self):
         # If thread getIpCameraFrameWorker_1 is running, then release it.
         if self.CaptureIpCameraFramesWorker_1.isRunning():
-            self.CaptureIpCameraFramesWorker_1.release()
+            self.CaptureIpCameraFramesWorker_1.pause = True
         # If thread getIpCameraFrameWorker_2 is running, then release it.
         if self.CaptureIpCameraFramesWorker_2.isRunning():
-            self.CaptureIpCameraFramesWorker_2.release()
+            self.CaptureIpCameraFramesWorker_2.pause = True
         self.ui.pB_start_cam.setEnabled(True)
+        self.ui.pB_Get_pic1.setEnabled(False)
+        self.ui.pB_Get_pic2.setEnabled(False)
+
+    @Slot()
+    def save_picture_2(self):
+        if not self.CaptureIpCameraFramesWorker_2.isRunning():
+            return
+        self.seq0 += 1
+        image = self.camera_2.pixmap().toImage()
+        save_path = self.dir + self.frame_fmt_0 % self.seq0
+        image.save(save_path)
+
+    @Slot()
+    def save_picture_1(self):
+        if not self.CaptureIpCameraFramesWorker_1.isRunning():
+            return
+        self.seq1 += 1
+        image = self.camera_1.pixmap().toImage()
+        save_path = self.dir + self.frame_fmt_1 % self.seq1
+        image.save(save_path)
+
+    @Slot()
+    def battery_change_color(self, data: int) -> None:
+        if data < 20:
+            self.ui.frame.setStyleSheet("background-color: red")
+            self.battery.setStyleSheet("background-color: red")
+
 
 
 

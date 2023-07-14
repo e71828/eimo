@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
+from time import sleep
+
 import rospy
 from eimo_msgs.msg import control, depth , angle
+from eimo_msgs.srv import scl
 from rosgraph import is_master_online
 
 from PySide6.QtCore import QObject, Signal, QThread
@@ -19,6 +22,12 @@ def pi_clip(angle):
     else:
         return angle
 
+def battery_level_map(voltage):
+    if 25.2 >= voltage >= 21.2:
+        return int((voltage - 21.2) / 4.0 * 100)
+    else:
+        return -1
+
 # Signals must inherit QObject
 class Communicate(QObject):
     signal_init_depth = Signal(int)
@@ -27,17 +36,19 @@ class Communicate(QObject):
     signal_depth = Signal(int)
     signal_setpoint_depth = Signal(int)
     signal_setpoint_yaw = Signal(int)
+    signal_battery_level = Signal(int)
 
 
 class UpdateDataWorker(QThread):
     def __init__(self):
-        super(UpdateDataWorker, self).__init__()
+        super().__init__()
         self.signals = Communicate()
         self.setpoint_depth = None
         self.setpoint_yaw = None
         self.sub_angle = None
         self.sub_depth = None
         self.sub_control = None
+        self.voltage_timer = None
         rospy.on_shutdown(self.release)
 
     def run(self):
@@ -49,6 +60,9 @@ class UpdateDataWorker(QThread):
         self.sub_control = rospy.Subscriber('control', control, self.gui_emit, 1)
         self.sub_depth = rospy.Subscriber('depth', depth, self.gui_emit, 2)
         self.sub_angle = rospy.Subscriber('angle', angle, self.gui_emit, 3)
+        self.read_battery_level()
+        self.voltage_timer = rospy.Timer(rospy.Duration(120), self.read_battery_level)
+
         rospy.spin()
 
 
@@ -75,7 +89,23 @@ class UpdateDataWorker(QThread):
         elif arg == 3:
             self.signals.signal_yaw.emit(msg.yaw)
 
+    def read_battery_level(self, timer=None):
+        rospy.wait_for_service('scl_passthrough')
+        try:
+            request_voltage = rospy.ServiceProxy('scl_passthrough', scl)
+            voltage_QA = request_voltage('IU')
+            vol_str = voltage_QA.Answer
+            if len(vol_str) > 2 and 'IU=' in vol_str:
+                index = vol_str.index('IU=')
+                voltage = int(vol_str[index + 3:index + 7], 16) / 10
+                if voltage <= 22.2:
+                    rospy.logwarn('voltage is low: %.1f V' % voltage)
+                self.signals.signal_battery_level.emit(battery_level_map(voltage))
+        except rospy.ServiceException as e:
+            print("Service call failed: %s" % e)
+
     def release(self):
+        rospy.wait_for_service('scl_passthrough')
         if self.sub_control is not None:
             self.sub_control.unregister()
         if self.sub_depth is not None:

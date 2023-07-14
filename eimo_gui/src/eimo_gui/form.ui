@@ -136,13 +136,6 @@
          <property name="verticalSpacing">
           <number>20</number>
          </property>
-         <item row="1" column="2">
-          <widget class="QLabel" name="change_depth">
-           <property name="text">
-            <string>0</string>
-           </property>
-          </widget>
-         </item>
          <item row="3" column="1">
           <widget class="QLabel" name="init_angle">
            <property name="text">
@@ -220,6 +213,13 @@
            </property>
           </widget>
          </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="change_depth">
+           <property name="text">
+            <string>0</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -249,17 +249,17 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+        <widget class="QFrame" name="frame">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(240, 236, 24)</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
          </property>
-        </spacer>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QToolBox" name="toolBox">
@@ -296,10 +296,10 @@
              <property name="spacing">
               <number>30</number>
              </property>
-             <item row="0" column="2">
-              <widget class="QPushButton" name="pB_rs_cam1">
+             <item row="2" column="0">
+              <widget class="QPushButton" name="pB_stop_cam">
                <property name="text">
-                <string>Restart Camera 1</string>
+                <string>Stop all Camera</string>
                </property>
               </widget>
              </item>
@@ -310,17 +310,17 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
-              <widget class="QPushButton" name="pB_stop_cam">
+             <item row="0" column="1">
+              <widget class="QPushButton" name="pB_Get_pic1">
                <property name="text">
-                <string>Stop all Camera</string>
+                <string>Get Picure up</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="2">
-              <widget class="QPushButton" name="pB_rs_cam2">
+             <item row="2" column="1">
+              <widget class="QPushButton" name="pB_Get_pic2">
                <property name="text">
-                <string>Restart Camera 2</string>
+                <string>Get Picure down</string>
                </property>
               </widget>
              </item>
@@ -346,14 +346,7 @@
              <property name="spacing">
               <number>30</number>
              </property>
-             <item row="0" column="1">
-              <widget class="QPushButton" name="pB_Get_video1">
-               <property name="text">
-                <string>PushButton</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
+             <item row="1" column="0">
               <widget class="QPushButton" name="pB_Get_video2">
                <property name="text">
                 <string>PushButton</string>
@@ -361,16 +354,9 @@
               </widget>
              </item>
              <item row="0" column="0">
-              <widget class="QPushButton" name="pB_Get_pic1">
+              <widget class="QPushButton" name="pB_Get_video1">
                <property name="text">
-                <string>Get Picure</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QPushButton" name="pB_Get_pic2">
-               <property name="text">
-                <string>Get Picure</string>
+                <string>PushButton</string>
                </property>
               </widget>
              </item>

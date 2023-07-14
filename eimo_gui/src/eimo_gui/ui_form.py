@@ -15,10 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QGridLayout, QGroupBox, QHBoxLayout,
-    QLabel, QMainWindow, QMenuBar, QPushButton,
-    QScrollArea, QSizePolicy, QSpacerItem, QStatusBar,
-    QToolBox, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QGroupBox,
+    QHBoxLayout, QLabel, QMainWindow, QMenuBar,
+    QPushButton, QScrollArea, QSizePolicy, QSpacerItem,
+    QStatusBar, QToolBox, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -76,11 +76,6 @@ class Ui_MainWindow(object):
         self.gridLayout = QGridLayout()
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setVerticalSpacing(20)
-        self.change_depth = QLabel(self.groupBox_control)
-        self.change_depth.setObjectName(u"change_depth")
-
-        self.gridLayout.addWidget(self.change_depth, 1, 2, 1, 1)
-
         self.init_angle = QLabel(self.groupBox_control)
         self.init_angle.setObjectName(u"init_angle")
 
@@ -136,6 +131,11 @@ class Ui_MainWindow(object):
 
         self.gridLayout.addWidget(self.label_angle, 0, 1, 1, 1)
 
+        self.change_depth = QLabel(self.groupBox_control)
+        self.change_depth.setObjectName(u"change_depth")
+
+        self.gridLayout.addWidget(self.change_depth, 1, 2, 1, 1)
+
 
         self.verticalLayout_3.addLayout(self.gridLayout)
 
@@ -149,9 +149,13 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addWidget(self.pB_Get_ROS)
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.frame = QFrame(self.groupBox_control)
+        self.frame.setObjectName(u"frame")
+        self.frame.setStyleSheet(u"background-color: rgb(240, 236, 24)")
+        self.frame.setFrameShape(QFrame.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Raised)
 
-        self.verticalLayout_3.addItem(self.verticalSpacer)
+        self.verticalLayout_3.addWidget(self.frame)
 
         self.toolBox = QToolBox(self.groupBox_control)
         self.toolBox.setObjectName(u"toolBox")
@@ -165,25 +169,25 @@ class Ui_MainWindow(object):
         self.gridLayout_2 = QGridLayout()
         self.gridLayout_2.setSpacing(30)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.pB_rs_cam1 = QPushButton(self.video_control)
-        self.pB_rs_cam1.setObjectName(u"pB_rs_cam1")
+        self.pB_stop_cam = QPushButton(self.video_control)
+        self.pB_stop_cam.setObjectName(u"pB_stop_cam")
 
-        self.gridLayout_2.addWidget(self.pB_rs_cam1, 0, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.pB_stop_cam, 2, 0, 1, 1)
 
         self.pB_start_cam = QPushButton(self.video_control)
         self.pB_start_cam.setObjectName(u"pB_start_cam")
 
         self.gridLayout_2.addWidget(self.pB_start_cam, 0, 0, 1, 1)
 
-        self.pB_stop_cam = QPushButton(self.video_control)
-        self.pB_stop_cam.setObjectName(u"pB_stop_cam")
+        self.pB_Get_pic1 = QPushButton(self.video_control)
+        self.pB_Get_pic1.setObjectName(u"pB_Get_pic1")
 
-        self.gridLayout_2.addWidget(self.pB_stop_cam, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.pB_Get_pic1, 0, 1, 1, 1)
 
-        self.pB_rs_cam2 = QPushButton(self.video_control)
-        self.pB_rs_cam2.setObjectName(u"pB_rs_cam2")
+        self.pB_Get_pic2 = QPushButton(self.video_control)
+        self.pB_Get_pic2.setObjectName(u"pB_Get_pic2")
 
-        self.gridLayout_2.addWidget(self.pB_rs_cam2, 1, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.pB_Get_pic2, 2, 1, 1, 1)
 
 
         self.verticalLayout.addLayout(self.gridLayout_2)
@@ -197,25 +201,15 @@ class Ui_MainWindow(object):
         self.gridLayout_3 = QGridLayout()
         self.gridLayout_3.setSpacing(30)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.pB_Get_video1 = QPushButton(self.video_capture)
-        self.pB_Get_video1.setObjectName(u"pB_Get_video1")
-
-        self.gridLayout_3.addWidget(self.pB_Get_video1, 0, 1, 1, 1)
-
         self.pB_Get_video2 = QPushButton(self.video_capture)
         self.pB_Get_video2.setObjectName(u"pB_Get_video2")
 
-        self.gridLayout_3.addWidget(self.pB_Get_video2, 1, 1, 1, 1)
+        self.gridLayout_3.addWidget(self.pB_Get_video2, 1, 0, 1, 1)
 
-        self.pB_Get_pic1 = QPushButton(self.video_capture)
-        self.pB_Get_pic1.setObjectName(u"pB_Get_pic1")
+        self.pB_Get_video1 = QPushButton(self.video_capture)
+        self.pB_Get_video1.setObjectName(u"pB_Get_video1")
 
-        self.gridLayout_3.addWidget(self.pB_Get_pic1, 0, 0, 1, 1)
-
-        self.pB_Get_pic2 = QPushButton(self.video_capture)
-        self.pB_Get_pic2.setObjectName(u"pB_Get_pic2")
-
-        self.gridLayout_3.addWidget(self.pB_Get_pic2, 1, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.pB_Get_video1, 0, 0, 1, 1)
 
 
         self.verticalLayout_4.addLayout(self.gridLayout_3)
@@ -248,7 +242,6 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.groupBox_video.setTitle(QCoreApplication.translate("MainWindow", u"Video", None))
         self.groupBox_control.setTitle(QCoreApplication.translate("MainWindow", u"Motion", None))
-        self.change_depth.setText(QCoreApplication.translate("MainWindow", u"0", None))
         self.init_angle.setText(QCoreApplication.translate("MainWindow", u"0", None))
         self.label_feedback.setText(QCoreApplication.translate("MainWindow", u"Feedback", None))
         self.label_depth.setText(QCoreApplication.translate("MainWindow", u"depth/mm", None))
@@ -260,16 +253,15 @@ class Ui_MainWindow(object):
         self.change_angle.setText(QCoreApplication.translate("MainWindow", u"0", None))
         self.label_init.setText(QCoreApplication.translate("MainWindow", u"Init", None))
         self.label_angle.setText(QCoreApplication.translate("MainWindow", u"Angle/Deg", None))
+        self.change_depth.setText(QCoreApplication.translate("MainWindow", u"0", None))
         self.pB_Get_ROS.setText(QCoreApplication.translate("MainWindow", u"Get Data From ROS", None))
-        self.pB_rs_cam1.setText(QCoreApplication.translate("MainWindow", u"Restart Camera 1", None))
-        self.pB_start_cam.setText(QCoreApplication.translate("MainWindow", u"Start all Camera", None))
         self.pB_stop_cam.setText(QCoreApplication.translate("MainWindow", u"Stop all Camera", None))
-        self.pB_rs_cam2.setText(QCoreApplication.translate("MainWindow", u"Restart Camera 2", None))
+        self.pB_start_cam.setText(QCoreApplication.translate("MainWindow", u"Start all Camera", None))
+        self.pB_Get_pic1.setText(QCoreApplication.translate("MainWindow", u"Get Picure up", None))
+        self.pB_Get_pic2.setText(QCoreApplication.translate("MainWindow", u"Get Picure down", None))
         self.toolBox.setItemText(self.toolBox.indexOf(self.video_control), QCoreApplication.translate("MainWindow", u"Video Setting", None))
-        self.pB_Get_video1.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.pB_Get_video2.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.pB_Get_pic1.setText(QCoreApplication.translate("MainWindow", u"Get Picure", None))
-        self.pB_Get_pic2.setText(QCoreApplication.translate("MainWindow", u"Get Picure", None))
+        self.pB_Get_video1.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.toolBox.setItemText(self.toolBox.indexOf(self.video_capture), QCoreApplication.translate("MainWindow", u"Vdieo Capture", None))
     # retranslateUi
 

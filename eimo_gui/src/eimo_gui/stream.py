@@ -4,7 +4,7 @@ import rospy
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import CompressedImage
 
-from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtGui import QImage
 from PySide6.QtCore import QThread, Signal
 
 
@@ -14,11 +14,10 @@ class CaptureIpCameraFramesWorker(QThread):
 
     def __init__(self, image_topic) -> None:
         # Instantiate CvBridge
+        self.pause = False
         self.capture = None
         self.image_topic = image_topic
         super().__init__()
-        self.frame_fmt = rospy.get_param(
-            '~filename_format', 'frame_0_%04i.jpg')
         rospy.on_shutdown(self.release)
 
 
@@ -30,6 +29,8 @@ class CaptureIpCameraFramesWorker(QThread):
 
 
     def image_callback(self, msg):
+        if self.pause:
+            return
         # Convert the image to Qt format.
         # qt_rgb_image = QImage(msg.data, msg.width, msg.height, msg.step, QImage.Format_RGB888)
         qt_rgb_image = QImage.fromData(msg.data)
