@@ -28,7 +28,8 @@ def read_angle(data_include):
                     roll_a, pitch_a, yaw_a = due_result
                 else:
                     pass
-            roll_, pitch_, yaw_ = roll_sum/angle_count, pitch_sum/angle_count, yaw_sum/angle_count
+            if angle_count != 0:  # division by zero
+                roll_, pitch_, yaw_ = roll_sum/angle_count, pitch_sum/angle_count, yaw_sum/angle_count
     return int(yaw_), int(roll_), int(pitch_)
 
 
