@@ -47,7 +47,7 @@ class DepthControl(Node):
                 self.response = self.future.result()
                 config_echo = self.response.answer
                 if config_echo == '%\r':
-                    self.gget_logger().debug(f'Config with string: {config_str}, result: OK')
+                    self.get_logger().debug(f'Config with string: {config_str}, result: OK')
                 return config_echo
         self.scl = SCL()        
         echo = self.scl.request('DL1')
