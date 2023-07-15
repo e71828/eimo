@@ -22,23 +22,6 @@
 
 
 ## Service
-```bash
-#cat /etc/systemd/system/clash.service
-[Unit]
-Description=A rule-based tunnel in go
-After=network-online.target
-[Service]
-Type=simple
-User=root
-UMask=007
-ExecStart=/opt/clash/clash-linux-amd64-v1.11.8 -d /opt/clash/
-Restart=on-failure
-RestartSec=1
-# Configures the time to wait before service is stopped forcefully.
-TimeoutStopSec=300
-[Install]
-WantedBy=multi-user.target
-```
 
 ```bash
 #cat /etc/systemd/system/pigpiod.service
