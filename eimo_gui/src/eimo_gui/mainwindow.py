@@ -21,6 +21,8 @@ from .battery_level import Battery
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setWindowTitle('EIMO GUI')
+        self.setWindowIcon(QIcon('github-mark-white.png'))
         self.seq1, self.seq0 = 0, 0
         self.home = expanduser("~")
         self.frame_fmt_1 = 'frame_1_%04i.jpg'
