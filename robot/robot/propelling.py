@@ -9,7 +9,6 @@ from simple_pid import PID
 from rcl_interfaces.srv import GetParameters
 
 
-
 def pi_clip(angle):
     if angle > 180:
         return angle - 360
@@ -17,6 +16,8 @@ def pi_clip(angle):
         return angle + 360
     else:
         return angle
+
+
 # 175->180->-175->-180->175
 
 
@@ -56,6 +57,7 @@ class I2cPropel(Node):
             def get_param(self):
                 self.req.names = ['init_yaw', 'angle_frequency']
                 self.future = get_param.cli.call_async(self.req)
+
         get_param = GetExternalParam()
         get_param.get_param()
 
@@ -67,7 +69,7 @@ class I2cPropel(Node):
 
         self.setpoint_yaw = self.init_yaw
 
-        self.pid = PID(1 ,0.05, 0.2, setpoint=self.setpoint_yaw, error_map=pi_clip)
+        self.pid = PID(1, 0.05, 0.2, setpoint=self.setpoint_yaw, error_map=pi_clip)
         self.pid.sample_time = 1 / self.angle_frequency
         self.pid.output_limits = (-100, 100)
 
@@ -85,10 +87,10 @@ class I2cPropel(Node):
     def deal_control_cmd(self, cmd):
         if cmd.light1 and not cmd.up and not cmd.down:
             self.light1_level = self.light1_level + 1 if self.light1_level < 8 else 0
-            self.pwm.set_pulse_width(6, self.light1_level*50 + 1100)
+            self.pwm.set_pulse_width(6, self.light1_level * 50 + 1100)
         if cmd.light2 and not cmd.up and not cmd.down:
             self.light2_level = self.light2_level + 1 if self.light2_level < 8 else 0
-            self.pwm.set_pulse_width(7, self.light2_level*50 + 1100)
+            self.pwm.set_pulse_width(7, self.light2_level * 50 + 1100)
 
         self.base_output = 0
         if cmd.forward:
@@ -115,17 +117,17 @@ class I2cPropel(Node):
         self.get_logger().info(f'output: {output:.1f}')
         self.get_logger().info(f'base_output: {self.base_output:.1f}')
         if self.base_output > 0:
-            self.pwm.set_pulse_width(4, 1524  - output + self.base_output)
-            self.pwm.set_pulse_width(5, 1527  + output + self.base_output)
+            self.pwm.set_pulse_width(4, 1524 - output + self.base_output)
+            self.pwm.set_pulse_width(5, 1527 + output + self.base_output)
         elif self.base_output < 0:
-            self.pwm.set_pulse_width(4, 1453  - output + self.base_output)
-            self.pwm.set_pulse_width(5, 1453  + output + self.base_output)
+            self.pwm.set_pulse_width(4, 1453 - output + self.base_output)
+            self.pwm.set_pulse_width(5, 1453 + output + self.base_output)
         elif output > 2:
-            self.pwm.set_pulse_width(4, 1453  - output)
-            self.pwm.set_pulse_width(5, 1527  + output)
+            self.pwm.set_pulse_width(4, 1453 - output)
+            self.pwm.set_pulse_width(5, 1527 + output)
         elif output < -2:
-            self.pwm.set_pulse_width(4, 1524  - output)
-            self.pwm.set_pulse_width(5, 1453  + output)
+            self.pwm.set_pulse_width(4, 1524 - output)
+            self.pwm.set_pulse_width(5, 1453 + output)
         else:
             self.pwm.set_pulse_width(4, 1500)
             self.pwm.set_pulse_width(5, 1500)
@@ -137,6 +139,7 @@ def main(arg=None):
     rclpy.spin(yaw_control_node)
     yaw_control_node.destroy_node()
     rclpy.shutdown()
+
 
 if __name__ == "__main__":
     main()
