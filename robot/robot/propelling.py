@@ -71,8 +71,8 @@ class I2cPropel(Node):
         self.pid.sample_time = 1 / self.angle_frequency
         self.pid.output_limits = (-100, 100)
 
-        self.sub_control = self.create_subscription(Control, 'control', self.deal_control_cmd)
-        self.sub_angle = self.create_subscription(Angle, 'angle', self.keep_yaw)
+        self.sub_control = self.create_subscription(Control, 'control', self.deal_control_cmd, 1)
+        self.sub_angle = self.create_subscription(Angle, 'angle', self.keep_yaw, 1)
 
     def __del__(self):
         sleep(3)  # wait for other using

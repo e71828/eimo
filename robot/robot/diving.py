@@ -112,8 +112,8 @@ class DepthControl(Node):
         self.pid.sample_time = 1 / self.depth_frequency
         self.pid.output_limits = (-180000, 180000)
 
-        self.sub_control = self.create_subscription(Control, 'control', self.deal_control_cmd)
-        self.sub_depth = self.create_subscription(Depth, 'depth', self.keep_depth)
+        self.sub_control = self.create_subscription(Control, 'control', self.deal_control_cmd, 1)
+        self.sub_depth = self.create_subscription(Depth, 'depth', self.keep_depth, 1)
 
     def __del__(self):
         self.scl.config('FP0')
